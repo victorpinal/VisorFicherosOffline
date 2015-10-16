@@ -17,8 +17,10 @@ Public Class Principal
 
         With New FolderBrowserDialog
             If (.ShowDialog() = DialogResult.OK) Then
+                Cursor.Current = Cursors.WaitCursor
                 reloadFolder(.SelectedPath)
                 loadDeviceNames()
+                Cursor.Current = Cursors.Default
             End If
         End With
 
@@ -118,7 +120,19 @@ Public Class Principal
 
     End Sub
 
-    Private Sub loadTree(parent_id As Object, Optional parent_node As TreeNode = Nothing)
+    Private Sub loadTree(parent_id As Object)
+        If (uxTree.ImageList Is Nothing) Then
+            uxTree.ImageList = New ImageList()
+            With uxTree.ImageList
+                .Images.Add(My.Resources.carpeta)
+            End With
+        End If
+        uxTree.BeginUpdate()
+        loadTreeInternal(parent_id, Nothing)
+        uxTree.EndUpdate()
+    End Sub
+
+    Private Sub loadTreeInternal(parent_id As Object, parent_node As TreeNode)
 
         Dim node As TreeNode
         If (parent_node Is Nothing) Then uxTree.Nodes.Clear()
@@ -126,14 +140,23 @@ Public Class Principal
         For Each myRow As DataRow In BaseDatos.Select("SELECT * FROM files WHERE parent_id=@p1", New MySqlParameter("p1", parent_id)).Rows
 
             node = New TreeNode(myRow("name").ToString)
+            node.ImageIndex = If(CBool(myRow("is_folder")), 0, 1)
+            node.Name = myRow("id").ToString
             If (parent_node Is Nothing) Then
                 uxTree.Nodes.Add(node)
             Else
                 parent_node.Nodes.Add(node)
             End If
-            If (CBool(myRow("is_folder"))) Then loadTree(myRow("id"), node)
+            If (CBool(myRow("is_folder"))) Then loadTreeInternal(myRow("id"), node)
 
         Next
 
     End Sub
+
+    Private Sub uxtxtSearch_TextChanged(sender As Object, e As EventArgs) Handles uxtxtSearch.TextChanged
+
+        'search in the treeview
+
+    End Sub
+
 End Class
