@@ -14,17 +14,17 @@ Public Class BaseDatos
         Try        
         	If (String.IsNullOrEmpty(My.MySettings.Default.Server)) Then
         		My.MySettings.Default.Server = InputBox("Servidor MySQL?",,"localhost")
-        		My.MySettings.Default.Port = InputBox("Puerto",,"3306")
-        		My.MySettings.Default.User = InputBox("Usuario")
+                My.MySettings.Default.Port = InputBox("Puerto",, "3306")
+                My.MySettings.Default.User = InputBox("Usuario")
         		My.MySettings.Default.Password = InputBox("Password")
         	End If
         	
         	dim conb As mySqlClient.MySqlConnectionStringBuilder = New MySqlClient.MySqlConnectionStringBuilder()
-        	conb.Server = My.MySettings.Default.Server
-        	conb.Port = CUInt(My.MySettings.Default.Port)
+            conb.Server = My.MySettings.Default.Server
+            conb.Port = CUInt(My.MySettings.Default.Port)
         	conb.UserID = My.MySettings.Default.User
         	conb.Password = My.MySettings.Default.Password
-            conb.Database = "files"
+            conb.Database = "peliculas"
             myConection = New MySqlClient.MySqlConnection(conb.ConnectionString)        
         	
             myCommand = myConection.CreateCommand()
@@ -113,6 +113,7 @@ Public Class BaseDatos
     End Function
 
     Shared Sub Errores(str As String)
+        MsgBox(str)
         Using outfile As New StreamWriter(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ErroresVisor.log"), True)
             outfile.WriteLine(Now.ToString & vbTab & str)
         End Using

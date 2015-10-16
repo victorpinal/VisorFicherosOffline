@@ -56,7 +56,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("virusquillo.no-ip.org")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
         Public Property Server() As String
             Get
                 Return CType(Me("Server"),String)
@@ -68,7 +68,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("3306")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("3360")>  _
         Public Property Port() As Integer
             Get
                 Return CType(Me("Port"),Integer)

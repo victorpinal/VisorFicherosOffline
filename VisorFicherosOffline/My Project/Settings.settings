@@ -3,10 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="Server" Type="System.String" Scope="User">
-      <Value Profile="(Default)">virusquillo.no-ip.org</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="Port" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">3306</Value>
+      <Value Profile="(Default)">3360</Value>
     </Setting>
     <Setting Name="User" Type="System.String" Scope="User">
       <Value Profile="(Default)">victor</Value>
