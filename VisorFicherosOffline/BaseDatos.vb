@@ -14,7 +14,7 @@ Public Class BaseDatos
         Try        
         	If (String.IsNullOrEmpty(My.MySettings.Default.Server)) Then
         		My.MySettings.Default.Server = InputBox("Servidor MySQL?",,"localhost")
-                My.MySettings.Default.Port = InputBox("Puerto",, "3306")
+                My.MySettings.Default.Port = CInt(InputBox("Puerto",, "3306"))
                 My.MySettings.Default.User = InputBox("Usuario")
         		My.MySettings.Default.Password = InputBox("Password")
         	End If
