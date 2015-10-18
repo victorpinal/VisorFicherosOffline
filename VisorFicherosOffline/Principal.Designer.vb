@@ -30,6 +30,7 @@ Partial Class Principal
         Me.uxlstDetail = New System.Windows.Forms.ListView()
         Me.uxColumnName = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.uxColumnSize = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.uxColumnDate = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         CType(Me.uxSplit, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.uxSplit.Panel1.SuspendLayout()
         Me.uxSplit.Panel2.SuspendLayout()
@@ -93,7 +94,7 @@ Partial Class Principal
         '
         'uxlstDetail
         '
-        Me.uxlstDetail.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.uxColumnName, Me.uxColumnSize})
+        Me.uxlstDetail.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.uxColumnName, Me.uxColumnSize, Me.uxColumnDate})
         Me.uxlstDetail.Dock = System.Windows.Forms.DockStyle.Fill
         Me.uxlstDetail.Location = New System.Drawing.Point(0, 0)
         Me.uxlstDetail.Name = "uxlstDetail"
@@ -111,6 +112,10 @@ Partial Class Principal
         '
         Me.uxColumnSize.Text = "Size"
         Me.uxColumnSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'uxColumnDate
+        '
+        Me.uxColumnDate.Text = "Date"
         '
         'Principal
         '
@@ -140,4 +145,5 @@ Partial Class Principal
     Friend WithEvents uxlstDetail As ListView
     Friend WithEvents uxColumnName As ColumnHeader
     Friend WithEvents uxColumnSize As ColumnHeader
+    Friend WithEvents uxColumnDate As ColumnHeader
 End Class

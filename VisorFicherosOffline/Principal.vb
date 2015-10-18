@@ -1,4 +1,5 @@
-﻿Imports MySql.Data.MySqlClient
+﻿Imports MediaInfoNET
+Imports MySql.Data.MySqlClient
 Imports System.IO.Path
 Imports System.Management
 
@@ -14,7 +15,7 @@ Public Class Principal
             .Images.Add(My.Resources.carpeta)
         End With
         uxTreeFolder.ImageList = myImageList
-        'uxlstDetail.SmallImageList = myImageList
+        'uxlstDetail.SmallImageList = myImageList        
 
         loadDeviceNames()   'Load device names in combo
 
@@ -38,12 +39,6 @@ Public Class Principal
     Private Sub reloadFolder(selectedPath As String)
 
         Dim dinfo As New IO.DirectoryInfo(selectedPath)
-        Try
-            If (CBool(dinfo.Attributes And (IO.FileAttributes.Hidden Or IO.FileAttributes.System))) Then Exit Sub
-            dinfo.GetAccessControl()
-        Catch ex As Exception
-            Exit Sub
-        End Try
         Dim folderId As Integer = getFolderId(selectedPath)
         'load data from db for selectedPath
         Dim myTableFiles As DataTable = BaseDatos.Select("SELECT * FROM files WHERE parent_id=@p1", New MySqlParameter("p1", folderId))
@@ -55,14 +50,26 @@ Public Class Principal
         Next
         'Insert new entries
         Dim isFolder As Boolean
+        Dim mediaInfo As MediaFile
         For Each entry As IO.FileSystemInfo In dinfo.GetFileSystemInfos().SkipWhile(Function(e) (From f In myTableFiles.AsEnumerable
                                                                                                  Select f.Field(Of String)("name")).Contains(e.Name))
-            'TODO check if file is now a directory, then update
-            isFolder = CBool(entry.Attributes And IO.FileAttributes.Directory)
-            BaseDatos.ExecuteNonQuery("INSERT INTO files (name,parent_id,is_folder,size) VALUES (@p1,@p2,@p3,@p4)",
-                              {New MySqlParameter("p1", entry.Name), New MySqlParameter("p2", folderId), New MySqlParameter("p3", If(isFolder, 1, 0)), New MySqlParameter("p4", If(isFolder, Nothing, CType(entry, IO.FileInfo).Length))})
-            'Por recursión updateamos los subdirectorios
-            If (isFolder) Then reloadFolder(Combine(selectedPath, entry.Name))
+            Try
+                'discard system entries and check permission
+                If (CBool(entry.Attributes And (IO.FileAttributes.Hidden Or IO.FileAttributes.System))) Then Continue For
+                'TODO check if file is now a directory, then update
+                isFolder = CBool(entry.Attributes And IO.FileAttributes.Directory)
+                If (isFolder) Then
+                    CType(entry, IO.DirectoryInfo).GetAccessControl()    'check permissions before insert
+                Else
+                    mediaInfo = New MediaFile(entry.FullName)
+                End If
+                BaseDatos.ExecuteNonQuery("INSERT INTO files (name,parent_id,is_folder,size,creation_date) VALUES (@p1,@p2,@p3,@p4,@p5)",
+                              {New MySqlParameter("p1", entry.Name), New MySqlParameter("p2", folderId), New MySqlParameter("p3", If(isFolder, 1, 0)),
+                              New MySqlParameter("p4", If(isFolder, Nothing, CType(entry, IO.FileInfo).Length)), New MySqlParameter("p5", entry.CreationTime)})
+                'Por recursión updateamos los subdirectorios
+                If (isFolder) Then reloadFolder(Combine(selectedPath, entry.Name))
+            Catch ex As Exception
+            End Try
         Next
 
     End Sub
@@ -170,8 +177,10 @@ Public Class Principal
 
         uxlstDetail.Items.Clear()
         For Each myRow As DataRow In BaseDatos.Select("SELECT * FROM files WHERE parent_id=@p1 AND is_folder=0", New MySqlParameter("p1", e.Node.Name)).Rows
-            uxlstDetail.Items.Add(New ListViewItem({myRow("name").ToString, myRow("size").ToString}))
+            uxlstDetail.Items.Add(New ListViewItem({myRow("name").ToString, myRow("size").ToString, myRow("creation_date").ToString}))
         Next
+        uxColumnSize.Width = -1
+        uxColumnDate.Width = -1
 
         uxlstDetail.EndUpdate()
 
