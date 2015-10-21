@@ -104,6 +104,7 @@
   <ItemGroup>
     <Compile Include="BaseDatos.vb" />
     <Compile Include="Device.vb" />
+    <Compile Include="modCommon.vb" />
     <Compile Include="Principal.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -169,6 +170,18 @@
     <None Include="Libs\MediaInfo.dll" />
     <None Include="Libs\MediaInfoNET.dll" />
     <None Include="Libs\README.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\archivo-icono-5266-32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\archivo-icono-9585-32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\beos-carpeta-icono-4094-16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\beos-genericos-icono-7681-16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
