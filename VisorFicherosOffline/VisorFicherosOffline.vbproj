@@ -67,6 +67,9 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationIcon>Icono.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="MediaInfoNET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -182,6 +185,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\beos-genericos-icono-7681-16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Icono.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
