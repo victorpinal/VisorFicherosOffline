@@ -103,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseDatos.vb" />
+    <Compile Include="Device.vb" />
     <Compile Include="Principal.vb">
       <SubType>Form</SubType>
     </Compile>

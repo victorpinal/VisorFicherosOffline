@@ -25,11 +25,15 @@ Public Class BaseDatos
         	conb.UserID = My.MySettings.Default.User
         	conb.Password = My.MySettings.Default.Password
             conb.Database = "peliculas"
-            myConection = New MySqlClient.MySqlConnection(conb.ConnectionString)        
-        	
+            myConection = New MySqlClient.MySqlConnection(conb.ConnectionString)
+
+            myConection.Open()
+            myConection.Close()
+
             myCommand = myConection.CreateCommand()
         Catch ex As Exception
             Errores("BaseDatos:Check:" & ex.Message)
+            If (myConection IsNot Nothing AndAlso myConection.State <> ConnectionState.Closed) Then myConection.Close()
         End Try
     End Sub
 
@@ -42,14 +46,15 @@ Public Class BaseDatos
     Shared Function [Select](Sql As String, Optional Param As MySqlClient.MySqlParameter = Nothing) As DataTable
         Dim myTable As New DataTable
         Try
-            myConection.Open()
+            If (myConection.State = ConnectionState.Closed) Then myConection.Open()
             myCommand.CommandText = Sql
             myCommand.Parameters.Clear()
             If (Param IsNot Nothing) Then myCommand.Parameters.Add(Param)
             myTable.Load(myCommand.ExecuteReader)
-            myConection.Close()
         Catch ex As Exception
             Errores("BaseDatos:ExecuteScalar:" & Sql & ":" & ex.Message)
+        Finally
+            If (myConection.State <> ConnectionState.Closed) Then myConection.Close()
         End Try
         Return myTable
     End Function
@@ -57,7 +62,7 @@ Public Class BaseDatos
     Shared Function [Select](Sql As String, Param() As MySqlClient.MySqlParameter) As DataTable
         Dim myTable As New DataTable
         Try
-            myConection.Open()
+            If (myConection.State = ConnectionState.Closed) Then myConection.Open()
             myCommand.CommandText = Sql
             myCommand.Parameters.Clear()
 
@@ -65,9 +70,10 @@ Public Class BaseDatos
                 myCommand.Parameters.Add(myParam)
             Next
             myTable.Load(myCommand.ExecuteReader)
-            myConection.Close()
         Catch ex As Exception
             Errores("BaseDatos:ExecuteScalar:" & Sql & ":" & ex.Message)
+        Finally
+            If (myConection.State <> ConnectionState.Closed) Then myConection.Close()
         End Try
         Return myTable
     End Function
@@ -81,30 +87,55 @@ Public Class BaseDatos
     Shared Function ExecuteNonQuery(Sql As String, Optional Param As MySqlClient.MySqlParameter = Nothing) As Integer
         ExecuteNonQuery = 0
         Try
-            myConection.Open()
+            If (myConection.State = ConnectionState.Closed) Then myConection.Open()
             myCommand.CommandText = Sql
             myCommand.Parameters.Clear
             If (Param IsNot Nothing) Then myCommand.Parameters.Add(Param)
             ExecuteNonQuery = myCommand.ExecuteNonQuery
-            myConection.Close()
         Catch ex As Exception
             Errores("BaseDatos:ExecuteNonQuery:" & Sql & ":" & ex.Message)
+        Finally
+            If (myConection.State <> ConnectionState.Closed) Then myConection.Close()
         End Try
     End Function
 
     Shared Function ExecuteNonQuery(Sql As String, Param() As MySqlClient.MySqlParameter) As Integer
         ExecuteNonQuery = 0
         Try
-            myConection.Open()
+            If (myConection.State = ConnectionState.Closed) Then myConection.Open()
             myCommand.CommandText = Sql
             myCommand.Parameters.Clear()
             For Each myParam As MySqlClient.MySqlParameter In Param
                 myCommand.Parameters.Add(myParam)
             Next
             ExecuteNonQuery = myCommand.ExecuteNonQuery
-            myConection.Close()
         Catch ex As Exception
             Errores("BaseDatos:ExecuteNonQuery:" & Sql & ":" & ex.Message)
+        Finally
+            If (myConection.State <> ConnectionState.Closed) Then myConection.Close()
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' Ejecuta una consulta DML y devuelve un valor (p.ej. el id insertado)
+    ''' </summary>
+    ''' <param name="Sql"></param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Shared Function ExecuteScalar(Sql As String, Param() As MySqlClient.MySqlParameter) As Integer
+        ExecuteScalar = Nothing
+        Try
+            If (myConection.State = ConnectionState.Closed) Then myConection.Open()
+            myCommand.CommandText = Sql
+            myCommand.Parameters.Clear()
+            For Each myParam As MySqlClient.MySqlParameter In Param
+                myCommand.Parameters.Add(myParam)
+            Next
+            ExecuteScalar = CInt(myCommand.ExecuteScalar)
+        Catch ex As Exception
+            Errores("BaseDatos:ExecuteScalar:" & Sql & ":" & ex.Message)
+        Finally
+            If (myConection.State <> ConnectionState.Closed) Then myConection.Close()
         End Try
     End Function
 
