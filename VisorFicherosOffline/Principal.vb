@@ -149,13 +149,13 @@ Public Class Principal
                                                               {New MySqlParameter("file_id", myRowEntry("id")),
                                                                New MySqlParameter("format", getMediaFormatId(.General.FormatID)),
                                                                New MySqlParameter("duration", .General.DurationMillis),
-                                                               New MySqlParameter("v_format", getMediaFormatId(.Video.First.FormatID)),
-                                                               New MySqlParameter("v_width", .Video.First.Width),
-                                                               New MySqlParameter("v_height", .Video.First.Height),
-                                                               New MySqlParameter("v_framerate", .Video.First.FrameRate),
+                                                               New MySqlParameter("v_format", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(If(String.IsNullOrEmpty(.Video.First.CodecID), .Video.First.FormatID, .Video.First.CodecID)))),
+                                                               New MySqlParameter("v_width", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Width)),
+                                                               New MySqlParameter("v_height", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Height)),
+                                                               New MySqlParameter("v_framerate", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.FrameRate)),
                                                                New MySqlParameter("a_count", .Audio.Count),
-                                                               New MySqlParameter("a_format", getMediaFormatId(.Audio.First.FormatID)),
-                                                               New MySqlParameter("a_bitrate", .Audio.First.Bitrate)})
+                                                               New MySqlParameter("a_format", If(.Audio.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(If(String.IsNullOrEmpty(.Audio.First.CodecID), .Audio.First.FormatID, .Audio.First.CodecID)))),
+                                                               New MySqlParameter("a_bitrate", If(.Audio.FirstOrDefault Is Nothing, Nothing, .Audio.First.Bitrate))})
                             End With
                         Catch ex As Exception
                             BaseDatos.Errores("[" & entry.FullName & "] " & ex.Message, False)
