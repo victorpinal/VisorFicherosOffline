@@ -17,7 +17,8 @@ Public Class Principal
     Private Sub Principal_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         dataBase = New BaseDatos()
-        AddHandler FormClosed, Sub() dataBase.Dispose()
+        AddHandler Me.FormClosing, Sub(s As Object, ev As FormClosingEventArgs) ev.Cancel = uxBackground.IsBusy
+        AddHandler Me.FormClosed, Sub() dataBase.Dispose()
 
         'load the imagelist
         uxImageList.Images.AddRange({My.Resources.folder, My.Resources.file})
@@ -31,14 +32,21 @@ Public Class Principal
                                         End Sub
         AddHandler uxBackground.RunWorkerCompleted, Sub()
                                                         loadDevices()
-                                                        uxbtnReloadFolder.Enabled = True
                                                         uxProgress.Value = 0
                                                         uxProgressLabel.Text = String.Empty
+                                                        uxbtnReloadFolder.Image = My.Resources.folder
+                                                        uxbtnReloadFolder.Tag = Nothing
                                                     End Sub
 
         AddHandler uxBackground.ProgressChanged, Sub(se As Object, ev As ProgressChangedEventArgs)
-                                                     uxProgressLabel.Text = String.Format("[{0}/{1}] {2}", uxProgress.Value, uxProgress.Maximum, ev.UserState.ToString)
+                                                     Dim elapsed As Double = Now.TimeOfDay.TotalMilliseconds - CDbl(uxProgress.Tag)
                                                      uxProgress.PerformStep()
+                                                     uxProgressLabel.Text = String.Format("FILE {0}/{1} TIME {2}/{3}  {4}",
+                                                                                          uxProgress.Value,
+                                                                                          uxProgress.Maximum,
+                                                                                          GetStringFormMillis(elapsed),
+                                                                                          GetStringFormMillis(elapsed * (uxProgress.Maximum - uxProgress.Value) / CDbl(uxProgress.Value)),
+                                                                                          ev.UserState.ToString)
                                                  End Sub
 
     End Sub
@@ -59,6 +67,7 @@ Public Class Principal
                 If (.ShowDialog() = DialogResult.OK) Then
                     uxProgressLabel.Text = "Scaning filesystem in " & .SelectedPath & "..."
                     uxProgress.Maximum = DirectoryInfo.getFilesCount(.SelectedPath)
+                    uxProgress.Tag = Now.TimeOfDay.TotalMilliseconds        'Save actual time to make ETA
                     uxProgress.Value = 0
                     uxBackground.RunWorkerAsync(.SelectedPath)
                     uxbtnReloadFolder.Image = My.Resources.alert
@@ -70,8 +79,6 @@ Public Class Principal
 
             'Cancel de load
             uxBackground.CancelAsync()
-            uxbtnReloadFolder.Image = My.Resources.folder
-            uxbtnReloadFolder.Tag = Nothing
 
         End If
 
@@ -137,6 +144,7 @@ Public Class Principal
             For Each entry As IO.FileInfo In currentDir.info.GetFiles
 
                 'Show progressbar
+                If (uxBackground.CancellationPending) Then Exit For
                 uxBackground.ReportProgress(0, entry.FullName)
 
                 'Discard hidden/system files

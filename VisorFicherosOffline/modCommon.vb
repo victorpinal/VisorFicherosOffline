@@ -42,9 +42,9 @@ Module modCommon
 
     End Function
 
-    Function GetStringFormMillis(millis As Long) As String
+    Function GetStringFormMillis(millis As Double) As String
 
-        Return TimeSpan.FromMilliseconds(millis).ToString
+        Return TimeSpan.FromMilliseconds(millis).ToString("hh\:mm\:ss")
 
     End Function
 
