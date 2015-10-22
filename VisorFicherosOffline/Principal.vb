@@ -1,6 +1,7 @@
 ﻿Imports MediaInfoNET
 Imports MySql.Data.MySqlClient
 Imports System.IO.Path
+Imports System.ComponentModel
 
 Public Class Principal
 
@@ -11,6 +12,8 @@ Public Class Principal
     Const SQL_devices = "SELECT *, CONCAT(name,' [',serial,']') as description FROM device ORDER BY name"
     Const SQL_files = "SELECT * FROM vw_files"
     Const SQL_media_format = "SELECT * FROM media_format"
+
+    'Shared bg As New BackgroundWorker()
 
 
     Private Sub Principal_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -26,6 +29,8 @@ Public Class Principal
         'load initial tables
         myTableFiles = BaseDatos.Select(SQL_files & " WHERE 1<>1")
         myTableMediaFormat = BaseDatos.Select(SQL_media_format)
+
+        'AddHandler bg.DoWork, Sub(se As Object, ev As DoWorkEventArgs) reloadFolder(ev.Argument.ToString)
 
     End Sub
 
@@ -45,6 +50,7 @@ Public Class Principal
                 uxProgress.Maximum = 1
                 uxProgress.Value = 0
                 Cursor.Current = Cursors.WaitCursor
+                'bg.RunWorkerAsync(.SelectedPath)
                 reloadFolder(.SelectedPath)
                 loadDeviceNames()
                 Cursor.Current = Cursors.Default
@@ -106,7 +112,8 @@ Public Class Principal
                     stack.Push(New KeyValuePair(Of IO.DirectoryInfo, Integer)(entry, CInt(myRowEntry("id"))))
 
                 Catch ex As Exception
-                    'GetAccessControl throws exception
+                    'GetAccessControl throws exception   
+                    BaseDatos.Errores("[" & entry.FullName & "] " & ex.Message, False)
                 End Try
             Next
 
@@ -151,6 +158,7 @@ Public Class Principal
                                                                New MySqlParameter("a_bitrate", .Audio.First.Bitrate)})
                             End With
                         Catch ex As Exception
+                            BaseDatos.Errores("[" & entry.FullName & "] " & ex.Message, False)
                         End Try
                     End If
 

@@ -143,9 +143,9 @@ Public Class BaseDatos
         Return str.Replace("'", "''")
     End Function
 
-    Shared Sub Errores(str As String)
-        MsgBox(str)
-        Using outfile As New StreamWriter(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ErroresVisor.log"), True)
+    Shared Sub Errores(str As String, Optional showError As Boolean = True)
+        If (showError) Then MsgBox(str)
+        Using outfile As New StreamWriter(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), My.Application.Info.Title & ".log"), True)
             outfile.WriteLine(Now.ToString & vbTab & str)
         End Using
     End Sub
