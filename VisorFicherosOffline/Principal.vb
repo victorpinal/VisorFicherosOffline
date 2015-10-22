@@ -144,17 +144,18 @@ Public Class Principal
                     If (New String() {".avi", ".mkv", ".mp4", ".wmv", ".mpg", ".mpeg", ".m4v", ".rmvb", ".divx", ".mov", ".flv", ".asf", ".3gp"}.Contains(entry.Extension.ToLower)) Then
                         Try
                             With New MediaFile(entry.FullName)
-                                BaseDatos.ExecuteNonQuery("INSERT INTO media_info (file_id,format,duration,v_format,v_width,v_height,v_framerate,a_count,a_format,a_bitrate) " &
-                                                              "VALUES (@file_id,@format,@duration,@v_format,@v_width,@v_height,@v_framerate,@a_count,@a_format,@a_bitrate)",
+                                BaseDatos.ExecuteNonQuery("INSERT INTO media_info (file_id,format,duration,v_format,v_codec,v_width,v_height,v_framerate,a_count,a_format,a_bitrate) " &
+                                                              "VALUES (@file_id,@format,@duration,@v_format,@v_codec,@v_width,@v_height,@v_framerate,@a_count,@a_format,@a_bitrate)",
                                                               {New MySqlParameter("file_id", myRowEntry("id")),
                                                                New MySqlParameter("format", getMediaFormatId(.General.FormatID)),
                                                                New MySqlParameter("duration", .General.DurationMillis),
-                                                               New MySqlParameter("v_format", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(If(String.IsNullOrEmpty(.Video.First.CodecID), .Video.First.FormatID, .Video.First.CodecID)))),
+                                                               New MySqlParameter("v_format", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.FormatID))),
+                                                               New MySqlParameter("v_codec", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.CodecID))),
                                                                New MySqlParameter("v_width", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Width)),
                                                                New MySqlParameter("v_height", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Height)),
                                                                New MySqlParameter("v_framerate", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.FrameRate)),
                                                                New MySqlParameter("a_count", .Audio.Count),
-                                                               New MySqlParameter("a_format", If(.Audio.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(If(String.IsNullOrEmpty(.Audio.First.CodecID), .Audio.First.FormatID, .Audio.First.CodecID)))),
+                                                               New MySqlParameter("a_format", If(.Audio.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Audio.First.FormatID))),
                                                                New MySqlParameter("a_bitrate", If(.Audio.FirstOrDefault Is Nothing, Nothing, .Audio.First.Bitrate))})
                             End With
                         Catch ex As Exception
@@ -357,6 +358,7 @@ Public Class Principal
                                         If(folder, "DIR", FormatFileSize(CLng(myRow("size")))),
                                         If(Not IsNumeric(myRow("duration")), String.Empty, GetStringFormMillis(CLng(myRow("duration")))),
                                         myRow("v_format").ToString,
+                                        myRow("v_codec").ToString,
                                         myRow("a_format").ToString,
                                         myRow("creation_date").ToString
                                         })

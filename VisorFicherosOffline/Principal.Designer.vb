@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class Principal
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class Principal
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Principal))
         Me.uxtxtSearch = New System.Windows.Forms.TextBox()
@@ -38,6 +38,7 @@ Partial Class Principal
         Me.uxState = New System.Windows.Forms.StatusStrip()
         Me.uxProgress = New System.Windows.Forms.ToolStripProgressBar()
         Me.uxProgressLabel = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.uxColumnVideoCodec = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         CType(Me.uxSplit, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.uxSplit.Panel1.SuspendLayout()
         Me.uxSplit.Panel2.SuspendLayout()
@@ -51,7 +52,7 @@ Partial Class Principal
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.uxtxtSearch.Location = New System.Drawing.Point(300, 12)
         Me.uxtxtSearch.Name = "uxtxtSearch"
-        Me.uxtxtSearch.Size = New System.Drawing.Size(564, 20)
+        Me.uxtxtSearch.Size = New System.Drawing.Size(695, 20)
         Me.uxtxtSearch.TabIndex = 2
         '
         'uxTreeFolder
@@ -63,7 +64,7 @@ Partial Class Principal
         Me.uxTreeFolder.Location = New System.Drawing.Point(0, 0)
         Me.uxTreeFolder.Name = "uxTreeFolder"
         Me.uxTreeFolder.ShowNodeToolTips = True
-        Me.uxTreeFolder.Size = New System.Drawing.Size(284, 562)
+        Me.uxTreeFolder.Size = New System.Drawing.Size(327, 562)
         Me.uxTreeFolder.TabIndex = 3
         '
         'uxcmbDeviceNames
@@ -99,20 +100,20 @@ Partial Class Principal
         'uxSplit.Panel2
         '
         Me.uxSplit.Panel2.Controls.Add(Me.uxlstDetail)
-        Me.uxSplit.Size = New System.Drawing.Size(852, 562)
-        Me.uxSplit.SplitterDistance = 284
+        Me.uxSplit.Size = New System.Drawing.Size(983, 562)
+        Me.uxSplit.SplitterDistance = 327
         Me.uxSplit.TabIndex = 4
         '
         'uxlstDetail
         '
         Me.uxlstDetail.AllowColumnReorder = True
-        Me.uxlstDetail.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.uxColumnName, Me.uxColumnSize, Me.uxColumnDuration, Me.uxColumnVideo, Me.uxColumnAudio, Me.uxColumnDate})
+        Me.uxlstDetail.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.uxColumnName, Me.uxColumnSize, Me.uxColumnDuration, Me.uxColumnVideo, Me.uxColumnVideoCodec, Me.uxColumnAudio, Me.uxColumnDate})
         Me.uxlstDetail.Dock = System.Windows.Forms.DockStyle.Fill
         Me.uxlstDetail.HideSelection = False
         Me.uxlstDetail.Location = New System.Drawing.Point(0, 0)
         Me.uxlstDetail.MultiSelect = False
         Me.uxlstDetail.Name = "uxlstDetail"
-        Me.uxlstDetail.Size = New System.Drawing.Size(564, 562)
+        Me.uxlstDetail.Size = New System.Drawing.Size(652, 562)
         Me.uxlstDetail.TabIndex = 0
         Me.uxlstDetail.UseCompatibleStateImageBehavior = False
         Me.uxlstDetail.View = System.Windows.Forms.View.Details
@@ -151,7 +152,7 @@ Partial Class Principal
         Me.uxState.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.uxProgress, Me.uxProgressLabel})
         Me.uxState.Location = New System.Drawing.Point(0, 604)
         Me.uxState.Name = "uxState"
-        Me.uxState.Size = New System.Drawing.Size(876, 22)
+        Me.uxState.Size = New System.Drawing.Size(1007, 22)
         Me.uxState.TabIndex = 5
         Me.uxState.Text = "StatusStrip1"
         '
@@ -166,15 +167,19 @@ Partial Class Principal
         '
         Me.uxProgressLabel.AutoSize = False
         Me.uxProgressLabel.Name = "uxProgressLabel"
-        Me.uxProgressLabel.Size = New System.Drawing.Size(628, 17)
+        Me.uxProgressLabel.Size = New System.Drawing.Size(790, 17)
         Me.uxProgressLabel.Spring = True
         Me.uxProgressLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'uxColumnVideoCodec
+        '
+        Me.uxColumnVideoCodec.Text = "Codec"
         '
         'Principal
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(876, 626)
+        Me.ClientSize = New System.Drawing.Size(1007, 626)
         Me.Controls.Add(Me.uxbtnReloadFolder)
         Me.Controls.Add(Me.uxcmbDeviceNames)
         Me.Controls.Add(Me.uxtxtSearch)
@@ -208,4 +213,5 @@ Partial Class Principal
     Friend WithEvents uxState As StatusStrip
     Friend WithEvents uxProgress As ToolStripProgressBar
     Friend WithEvents uxProgressLabel As ToolStripStatusLabel
+    Friend WithEvents uxColumnVideoCodec As ColumnHeader
 End Class
