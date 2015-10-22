@@ -65,7 +65,7 @@ Public Class Principal
 
         'init table
         Dim device As Device = getDevice(selectedPath)
-        Dim myTableFiles = BaseDatos.Select(SQL_files & " WHERE device_id=" & device.id)
+        myTableFiles = BaseDatos.Select(SQL_files & " WHERE device_id=" & device.id)
 
         'Make a stack to follow the structure
         Dim stack = New Stack(Of KeyValuePair(Of IO.DirectoryInfo, Integer))
