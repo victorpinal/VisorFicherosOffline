@@ -97,6 +97,7 @@ Public Class Principal
         While (stack.Count > 0 And Not uxBackground.CancellationPending)
 
             Dim currentDir As DirectoryInfo = stack.Pop
+            Dim newId As Integer = 0
 
             'TODO Check changes file<->dir
 
@@ -119,17 +120,17 @@ Public Class Principal
 
                     'Insert new entries        
                     If (myRowEntry Is Nothing) Then
-                        myRowEntry = dataBase.Select("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
+                        newId = dataBase.ExecuteScalar("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
                                                      "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id); " &
-                                                     "SELECT id,name,parent_id,is_folder FROM files WHERE id=LAST_INSERT_ID()",
+                                                     "SELECT LAST_INSERT_ID()",
                                                      {New MySqlParameter("name", entry.Name),
                                                       New MySqlParameter("parent_id", currentDir.id),
                                                       New MySqlParameter("is_folder", 1),
                                                       New MySqlParameter("size", Nothing),
                                                       New MySqlParameter("creation_date", entry.CreationTime),
-                                                      New MySqlParameter("device_id", device.id)}).AsEnumerable.FirstOrDefault
+                                                      New MySqlParameter("device_id", device.id)})
 
-                        myTableLoad.LoadDataRow(myRowEntry.ItemArray, True)
+                        myRowEntry = myTableLoad.LoadDataRow({newId, entry.Name, currentDir.id, 1}, True)
                     End If
 
                     stack.Push(New DirectoryInfo With {.info = entry, .id = CInt(myRowEntry("id"))})
@@ -153,17 +154,17 @@ Public Class Principal
 
                 'Insert new entries        
                 If (myRowEntry Is Nothing) Then
-                    myRowEntry = dataBase.Select("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
+                    newId = dataBase.ExecuteScalar("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
                                                  "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id); " &
-                                                 "SELECT id,name,parent_id,is_folder FROM files WHERE id=LAST_INSERT_ID()",
+                                                 "SELECT LAST_INSERT_ID()",
                                                  {New MySqlParameter("name", entry.Name),
                                                   New MySqlParameter("parent_id", currentDir.id),
                                                   New MySqlParameter("is_folder", 0),
                                                   New MySqlParameter("size", entry.Length),
                                                   New MySqlParameter("creation_date", entry.CreationTime),
-                                                  New MySqlParameter("device_id", device.id)}).AsEnumerable.FirstOrDefault
+                                                  New MySqlParameter("device_id", device.id)})
 
-                    myTableLoad.LoadDataRow(myRowEntry.ItemArray, True)
+                    myTableLoad.LoadDataRow({newId, entry.Name, currentDir.id, 0}, True)
 
                     'insert mediainfo
                     If (New String() {".avi", ".mkv", ".mp4", ".wmv", ".mpg", ".mpeg", ".m4v", ".rmvb", ".divx", ".mov", ".flv", ".asf", ".3gp"}.Contains(entry.Extension.ToLower)) Then
@@ -171,7 +172,7 @@ Public Class Principal
                             With New MediaFile(entry.FullName)
                                 dataBase.ExecuteNonQuery("INSERT INTO media_info (file_id,format,duration,v_format,v_codec,v_width,v_height,v_framerate,a_count,a_format,a_bitrate) " &
                                                          "VALUES (@file_id,@format,@duration,@v_format,@v_codec,@v_width,@v_height,@v_framerate,@a_count,@a_format,@a_bitrate)",
-                                                              {New MySqlParameter("file_id", myRowEntry("id")),
+                                                              {New MySqlParameter("file_id", newId),
                                                                New MySqlParameter("format", getMediaFormatId(.General.FormatID)),
                                                                New MySqlParameter("duration", .General.DurationMillis),
                                                                New MySqlParameter("v_format", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.FormatID))),

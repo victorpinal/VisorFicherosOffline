@@ -1,5 +1,4 @@
-﻿Imports System.IO
-imports MySql.Data
+﻿Imports MySql.Data
 
 Public Class BaseDatos
     Implements IDisposable
