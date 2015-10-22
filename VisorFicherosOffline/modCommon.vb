@@ -1,4 +1,5 @@
-﻿Imports System.Management
+﻿Imports System.IO
+Imports System.Management
 
 Module modCommon
 
@@ -9,6 +10,7 @@ Module modCommon
     Public Const HR As Integer = 60 * 60
 
     Function FormatFileSize(ByVal size As Long) As String
+
         If size > 0 Then
             Dim s As String = ""
             Select Case size
@@ -37,48 +39,13 @@ Module modCommon
         Else
             Return ""
         End If
+
     End Function
 
-    'Function ParseTimeSpan(ByVal TimeString As String) As Long
-    '    Dim millis As Long = 0
-
-    '    If TimeString.Contains(":") Then
-    '        Dim time As New TimeSpan
-    '        If TimeSpan.TryParse(TimeString, time) Then
-    '            millis = Math.Floor(time.TotalMilliseconds)
-    '        End If
-    '    Else
-    '        Dim time As Double
-    '        If Double.TryParse(TimeString, time) Then
-    '            Dim k As Long = Math.Floor(time * 1000)
-    '            millis = Math.Floor(time * 1000)
-    '        End If
-    '    End If
-
-    '    Return millis
-    'End Function
-
-    'Function GetMillisFromString(ByVal TimeString As String) As Long
-    '    Dim millis As Long = 0
-
-    '    If TimeString.Contains(":") Then
-    '        Dim time As New TimeSpan
-    '        If TimeSpan.TryParse(TimeString, time) Then
-    '            millis = Math.Floor(time.TotalMilliseconds)
-    '        End If
-    '    Else
-    '        Dim time As Double
-    '        If Double.TryParse(TimeString, time) Then
-    '            Dim k As Long = Math.Floor(time * 1000)
-    '            millis = Math.Floor(time * 1000)
-    '        End If
-    '    End If
-
-    '    Return millis
-    'End Function
-
     Function GetStringFormMillis(millis As Long) As String
+
         Return TimeSpan.FromMilliseconds(millis).ToString
+
     End Function
 
     Function GetHDSerialNo(ByVal strDrive As String) As String 'Get HD Serial Number
@@ -93,5 +60,21 @@ Module modCommon
         Return moHD("VolumeSerialNumber").ToString()
 
     End Function
+
+    Function QuitaComilla(str As String) As String
+
+        Return str.Replace("'", "''")
+
+    End Function
+
+    Sub Errores(str As String, Optional showError As Boolean = True)
+
+        If (showError) Then MsgBox(str)
+
+        Using outfile As New StreamWriter(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), My.Application.Info.Title & ".log"), True)
+            outfile.WriteLine(Now.ToString & vbTab & str)
+        End Using
+
+    End Sub
 
 End Module

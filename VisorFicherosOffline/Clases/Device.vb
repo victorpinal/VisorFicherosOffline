@@ -1,4 +1,5 @@
 ﻿Public Class Device
+
     Property id As Integer
     Property name As String
     Property serial As String

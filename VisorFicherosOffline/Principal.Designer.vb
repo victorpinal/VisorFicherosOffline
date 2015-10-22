@@ -22,23 +22,25 @@ Partial Class Principal
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Principal))
+        Me.components = New System.ComponentModel.Container()
         Me.uxtxtSearch = New System.Windows.Forms.TextBox()
         Me.uxTreeFolder = New System.Windows.Forms.TreeView()
+        Me.uxImageList = New System.Windows.Forms.ImageList(Me.components)
         Me.uxcmbDeviceNames = New System.Windows.Forms.ComboBox()
-        Me.uxbtnReloadFolder = New System.Windows.Forms.Button()
         Me.uxSplit = New System.Windows.Forms.SplitContainer()
         Me.uxlstDetail = New System.Windows.Forms.ListView()
         Me.uxColumnName = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.uxColumnSize = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.uxColumnDuration = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.uxColumnVideo = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.uxColumnVideoCodec = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.uxColumnAudio = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.uxColumnDate = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.uxState = New System.Windows.Forms.StatusStrip()
         Me.uxProgress = New System.Windows.Forms.ToolStripProgressBar()
         Me.uxProgressLabel = New System.Windows.Forms.ToolStripStatusLabel()
-        Me.uxColumnVideoCodec = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.uxBackground = New System.ComponentModel.BackgroundWorker()
+        Me.uxbtnReloadFolder = New System.Windows.Forms.Button()
         CType(Me.uxSplit, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.uxSplit.Panel1.SuspendLayout()
         Me.uxSplit.Panel2.SuspendLayout()
@@ -61,11 +63,20 @@ Partial Class Principal
         Me.uxTreeFolder.FullRowSelect = True
         Me.uxTreeFolder.HideSelection = False
         Me.uxTreeFolder.HotTracking = True
+        Me.uxTreeFolder.ImageIndex = 0
+        Me.uxTreeFolder.ImageList = Me.uxImageList
         Me.uxTreeFolder.Location = New System.Drawing.Point(0, 0)
         Me.uxTreeFolder.Name = "uxTreeFolder"
+        Me.uxTreeFolder.SelectedImageIndex = 0
         Me.uxTreeFolder.ShowNodeToolTips = True
         Me.uxTreeFolder.Size = New System.Drawing.Size(327, 562)
         Me.uxTreeFolder.TabIndex = 3
+        '
+        'uxImageList
+        '
+        Me.uxImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit
+        Me.uxImageList.ImageSize = New System.Drawing.Size(16, 16)
+        Me.uxImageList.TransparentColor = System.Drawing.Color.Transparent
         '
         'uxcmbDeviceNames
         '
@@ -74,16 +85,6 @@ Partial Class Principal
         Me.uxcmbDeviceNames.Name = "uxcmbDeviceNames"
         Me.uxcmbDeviceNames.Size = New System.Drawing.Size(253, 21)
         Me.uxcmbDeviceNames.TabIndex = 0
-        '
-        'uxbtnReloadFolder
-        '
-        Me.uxbtnReloadFolder.AutoSize = True
-        Me.uxbtnReloadFolder.Image = CType(resources.GetObject("uxbtnReloadFolder.Image"), System.Drawing.Image)
-        Me.uxbtnReloadFolder.Location = New System.Drawing.Point(270, 10)
-        Me.uxbtnReloadFolder.Name = "uxbtnReloadFolder"
-        Me.uxbtnReloadFolder.Size = New System.Drawing.Size(27, 23)
-        Me.uxbtnReloadFolder.TabIndex = 1
-        Me.uxbtnReloadFolder.UseVisualStyleBackColor = True
         '
         'uxSplit
         '
@@ -114,6 +115,7 @@ Partial Class Principal
         Me.uxlstDetail.MultiSelect = False
         Me.uxlstDetail.Name = "uxlstDetail"
         Me.uxlstDetail.Size = New System.Drawing.Size(652, 562)
+        Me.uxlstDetail.SmallImageList = Me.uxImageList
         Me.uxlstDetail.TabIndex = 0
         Me.uxlstDetail.UseCompatibleStateImageBehavior = False
         Me.uxlstDetail.View = System.Windows.Forms.View.Details
@@ -137,6 +139,10 @@ Partial Class Principal
         '
         Me.uxColumnVideo.Text = "Video"
         Me.uxColumnVideo.Width = 55
+        '
+        'uxColumnVideoCodec
+        '
+        Me.uxColumnVideoCodec.Text = "Codec"
         '
         'uxColumnAudio
         '
@@ -171,9 +177,20 @@ Partial Class Principal
         Me.uxProgressLabel.Spring = True
         Me.uxProgressLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'uxColumnVideoCodec
+        'uxBackground
         '
-        Me.uxColumnVideoCodec.Text = "Codec"
+        Me.uxBackground.WorkerReportsProgress = True
+        Me.uxBackground.WorkerSupportsCancellation = True
+        '
+        'uxbtnReloadFolder
+        '
+        Me.uxbtnReloadFolder.AutoSize = True
+        Me.uxbtnReloadFolder.Image = Global.VisorFicherosOffline.My.Resources.Resources.folder
+        Me.uxbtnReloadFolder.Location = New System.Drawing.Point(271, 11)
+        Me.uxbtnReloadFolder.Name = "uxbtnReloadFolder"
+        Me.uxbtnReloadFolder.Size = New System.Drawing.Size(24, 23)
+        Me.uxbtnReloadFolder.TabIndex = 1
+        Me.uxbtnReloadFolder.UseVisualStyleBackColor = True
         '
         'Principal
         '
@@ -214,4 +231,6 @@ Partial Class Principal
     Friend WithEvents uxProgress As ToolStripProgressBar
     Friend WithEvents uxProgressLabel As ToolStripStatusLabel
     Friend WithEvents uxColumnVideoCodec As ColumnHeader
+    Friend WithEvents uxImageList As ImageList
+    Friend WithEvents uxBackground As System.ComponentModel.BackgroundWorker
 End Class
