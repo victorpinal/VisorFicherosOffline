@@ -40,13 +40,14 @@ Public Class Principal
 
         AddHandler uxBackground.ProgressChanged, Sub(se As Object, ev As ProgressChangedEventArgs)
                                                      Dim elapsed As Double = Now.TimeOfDay.TotalMilliseconds - CDbl(uxProgress.Tag)
-                                                     uxProgress.PerformStep()
+                                                     Dim progress As ReportProgress = CType(ev.UserState, ReportProgress)
+                                                     uxProgress.Value = progress.counter
                                                      uxProgressLabel.Text = String.Format("FILE {0}/{1} TIME {2}/{3}  {4}",
                                                                                           uxProgress.Value,
                                                                                           uxProgress.Maximum,
                                                                                           GetStringFormMillis(elapsed),
                                                                                           GetStringFormMillis(elapsed * (uxProgress.Maximum - uxProgress.Value) / CDbl(uxProgress.Value)),
-                                                                                          ev.UserState.ToString)
+                                                                                          progress.entry)
                                                  End Sub
 
     End Sub
@@ -90,6 +91,15 @@ Public Class Principal
         Dim device As Device = getDevice(selectedPath)
         Dim myTableLoad As DataTable = dataBase.Select("SELECT id,name,parent_id,is_folder FROM files WHERE device_id=" & device.id)
 
+        'Timer to show progress
+        Dim showProgress As Boolean = False
+        Dim timer As New Timers.Timer(1000)
+        AddHandler timer.Elapsed, Sub() showProgress = True
+        timer.Enabled = True
+
+        Dim newId As Integer = 0
+        Dim counter As Integer = 0
+
         'Make a stack to follow the structure
         Dim stack As New Stack(Of DirectoryInfo)
         stack.Push(New DirectoryInfo With {.info = New IO.DirectoryInfo(selectedPath), .id = createFolderId(selectedPath, myTableLoad)})
@@ -97,7 +107,6 @@ Public Class Principal
         While (stack.Count > 0 And Not uxBackground.CancellationPending)
 
             Dim currentDir As DirectoryInfo = stack.Pop
-            Dim newId As Integer = 0
 
             'TODO Check changes file<->dir
 
@@ -121,14 +130,14 @@ Public Class Principal
                     'Insert new entries        
                     If (myRowEntry Is Nothing) Then
                         newId = dataBase.ExecuteScalar("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
-                                                     "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id); " &
-                                                     "SELECT LAST_INSERT_ID()",
-                                                     {New MySqlParameter("name", entry.Name),
-                                                      New MySqlParameter("parent_id", currentDir.id),
-                                                      New MySqlParameter("is_folder", 1),
-                                                      New MySqlParameter("size", Nothing),
-                                                      New MySqlParameter("creation_date", entry.CreationTime),
-                                                      New MySqlParameter("device_id", device.id)})
+                          "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id); " &
+                          "SELECT LAST_INSERT_ID()",
+                          {New MySqlParameter("name", entry.Name),
+                           New MySqlParameter("parent_id", currentDir.id),
+                           New MySqlParameter("is_folder", 1),
+                           New MySqlParameter("size", Nothing),
+                           New MySqlParameter("creation_date", entry.CreationTime),
+                           New MySqlParameter("device_id", device.id)})
 
                         myRowEntry = myTableLoad.LoadDataRow({newId, entry.Name, currentDir.id, 1}, True)
                     End If
@@ -144,9 +153,14 @@ Public Class Principal
             'insert files
             For Each entry As IO.FileInfo In currentDir.info.GetFiles
 
-                'Show progressbar
-                If (uxBackground.CancellationPending) Then Exit For
-                uxBackground.ReportProgress(0, entry.FullName)
+                'Show progressbar                
+                counter += 1
+                If (showProgress) Then
+                    If (uxBackground.CancellationPending) Then Exit For
+                    uxBackground.ReportProgress(0, New ReportProgress With {.counter = counter, .entry = entry.FullName})
+                    showProgress = False
+                End If
+
 
                 'Discard hidden/system files
                 If (CBool(entry.Attributes And (IO.FileAttributes.Hidden Or IO.FileAttributes.System))) Then Continue For
@@ -155,14 +169,14 @@ Public Class Principal
                 'Insert new entries        
                 If (myRowEntry Is Nothing) Then
                     newId = dataBase.ExecuteScalar("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
-                                                 "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id); " &
-                                                 "SELECT LAST_INSERT_ID()",
-                                                 {New MySqlParameter("name", entry.Name),
-                                                  New MySqlParameter("parent_id", currentDir.id),
-                                                  New MySqlParameter("is_folder", 0),
-                                                  New MySqlParameter("size", entry.Length),
-                                                  New MySqlParameter("creation_date", entry.CreationTime),
-                                                  New MySqlParameter("device_id", device.id)})
+                      "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id); " &
+                      "SELECT LAST_INSERT_ID()",
+                      {New MySqlParameter("name", entry.Name),
+                       New MySqlParameter("parent_id", currentDir.id),
+                       New MySqlParameter("is_folder", 0),
+                       New MySqlParameter("size", entry.Length),
+                       New MySqlParameter("creation_date", entry.CreationTime),
+                       New MySqlParameter("device_id", device.id)})
 
                     myTableLoad.LoadDataRow({newId, entry.Name, currentDir.id, 0}, True)
 
@@ -171,18 +185,18 @@ Public Class Principal
                         Try
                             With New MediaFile(entry.FullName)
                                 dataBase.ExecuteNonQuery("INSERT INTO media_info (file_id,format,duration,v_format,v_codec,v_width,v_height,v_framerate,a_count,a_format,a_bitrate) " &
-                                                         "VALUES (@file_id,@format,@duration,@v_format,@v_codec,@v_width,@v_height,@v_framerate,@a_count,@a_format,@a_bitrate)",
-                                                              {New MySqlParameter("file_id", newId),
-                                                               New MySqlParameter("format", getMediaFormatId(.General.FormatID)),
-                                                               New MySqlParameter("duration", .General.DurationMillis),
-                                                               New MySqlParameter("v_format", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.FormatID))),
-                                                               New MySqlParameter("v_codec", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.CodecID))),
-                                                               New MySqlParameter("v_width", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Width)),
-                                                               New MySqlParameter("v_height", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Height)),
-                                                               New MySqlParameter("v_framerate", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.FrameRate)),
-                                                               New MySqlParameter("a_count", .Audio.Count),
-                                                               New MySqlParameter("a_format", If(.Audio.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Audio.First.FormatID))),
-                                                               New MySqlParameter("a_bitrate", If(.Audio.FirstOrDefault Is Nothing, Nothing, .Audio.First.Bitrate))})
+                              "VALUES (@file_id,@format,@duration,@v_format,@v_codec,@v_width,@v_height,@v_framerate,@a_count,@a_format,@a_bitrate)",
+                                   {New MySqlParameter("file_id", newId),
+                                    New MySqlParameter("format", getMediaFormatId(.General.FormatID)),
+                                    New MySqlParameter("duration", .General.DurationMillis),
+                                    New MySqlParameter("v_format", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.FormatID))),
+                                    New MySqlParameter("v_codec", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.CodecID))),
+                                    New MySqlParameter("v_width", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Width)),
+                                    New MySqlParameter("v_height", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Height)),
+                                    New MySqlParameter("v_framerate", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.FrameRate)),
+                                    New MySqlParameter("a_count", .Audio.Count),
+                                    New MySqlParameter("a_format", If(.Audio.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Audio.First.FormatID))),
+                                    New MySqlParameter("a_bitrate", If(.Audio.FirstOrDefault Is Nothing, Nothing, .Audio.First.Bitrate))})
                             End With
                         Catch ex As Exception
                             Errores("[" & entry.FullName & "] " & ex.Message, False)
