@@ -106,7 +106,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clases\BaseDatos.vb" />
-    <Compile Include="Clases\DirectoryInfo.vb" />
+    <Compile Include="Clases\FolderInfo.vb" />
     <Compile Include="Clases\Device.vb" />
     <Compile Include="Clases\ReportProgress.vb" />
     <Compile Include="modCommon.vb" />
@@ -181,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icono.ico" />
+    <None Include="Resources\beos-encontrar-icono-8759-16.png" />
     <None Include="Resources\beos-parada-icono-9853-16.png" />
     <None Include="Resources\beos-parada-icono-9853-96.png" />
     <None Include="Resources\beos-genericos-icono-7681-96.png" />

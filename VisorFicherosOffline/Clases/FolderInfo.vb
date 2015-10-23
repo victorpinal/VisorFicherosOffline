@@ -1,7 +1,7 @@
-﻿Public Class DirectoryInfo
+﻿Public Class FolderInfo
 
     Property info As IO.DirectoryInfo
-    Property id As Integer
+    Property id As Object
 
     Shared Function getFilesCount(path As String) As Integer
 

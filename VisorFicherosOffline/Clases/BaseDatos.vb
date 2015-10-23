@@ -25,7 +25,7 @@ Public Class BaseDatos
             conb.Port = CUInt(My.MySettings.Default.Port)
             conb.UserID = My.MySettings.Default.User
             conb.Password = My.MySettings.Default.Password
-            conb.Database = "peliculas"
+            conb.Database = If(Debugger.IsAttached, "peliculas_test", "peliculas")
             myConection = New MySqlClient.MySqlConnection(conb.ConnectionString)
             myCommand = myConection.CreateCommand()
             myConection.Open()

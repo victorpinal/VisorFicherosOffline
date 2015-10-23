@@ -3,6 +3,8 @@ Imports System.Management
 
 Module modCommon
 
+    Public videoExtension As String() = New String() {".avi", ".mkv", ".mp4", ".wmv", ".mpg", ".mpeg", ".m4v", ".rmvb", ".divx", ".mov", ".flv", ".asf", ".3gp"}
+
     Public Const KB As Long = 1024
     Public Const MB As Long = 1024 * 1024
     Public Const GB As Long = 1024 * 1024 * 1024

@@ -10,45 +10,15 @@ Public Class Principal
     Private myTableDevices As DataTable
     Private myTableMediaFormat As DataTable
 
-    Const SQL_devices As String = "SELECT *, CONCAT(name,' [',serial,']') as description FROM device ORDER BY name"
-    Const SQL_files As String = "SELECT * FROM vw_files"
-    Const SQL_media_format As String = "SELECT * FROM media_format"
-
     Private Sub Principal_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         dataBase = New BaseDatos()
-        AddHandler Me.FormClosing, Sub(s As Object, ev As FormClosingEventArgs) ev.Cancel = uxBackground.IsBusy
-        AddHandler Me.FormClosed, Sub() dataBase.Dispose()
 
         'load the imagelist
         uxImageList.Images.AddRange({My.Resources.folder, My.Resources.file})
 
         'load initial tables
-        myTableMediaFormat = dataBase.Select(SQL_media_format)
-
-        'Background task is load selected folder
-        AddHandler uxBackground.DoWork, Sub(se As Object, ev As DoWorkEventArgs)
-                                            loadFolderInDB(ev.Argument.ToString)
-                                        End Sub
-        AddHandler uxBackground.RunWorkerCompleted, Sub()
-                                                        loadDevices()
-                                                        uxProgress.Value = 0
-                                                        uxProgressLabel.Text = String.Empty
-                                                        uxbtnReloadFolder.Image = My.Resources.folder
-                                                        uxbtnReloadFolder.Tag = Nothing
-                                                    End Sub
-
-        AddHandler uxBackground.ProgressChanged, Sub(se As Object, ev As ProgressChangedEventArgs)
-                                                     Dim elapsed As Double = Now.TimeOfDay.TotalMilliseconds - CDbl(uxProgress.Tag)
-                                                     Dim progress As ReportProgress = CType(ev.UserState, ReportProgress)
-                                                     uxProgress.Value = progress.counter
-                                                     uxProgressLabel.Text = String.Format("FILE {0}/{1} TIME {2}/{3}  {4}",
-                                                                                          uxProgress.Value,
-                                                                                          uxProgress.Maximum,
-                                                                                          GetStringFormMillis(elapsed),
-                                                                                          GetStringFormMillis(elapsed * (uxProgress.Maximum - uxProgress.Value) / CDbl(uxProgress.Value)),
-                                                                                          progress.entry)
-                                                 End Sub
+        myTableMediaFormat = dataBase.Select("SELECT * FROM media_format")
 
     End Sub
 
@@ -58,21 +28,69 @@ Public Class Principal
 
     End Sub
 
+    Private Sub Principal_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
+
+        e.Cancel = uxBackground.IsBusy
+
+    End Sub
+
+    Private Sub Principal_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
+
+        dataBase.Dispose()
+
+    End Sub
+
+#Region "BackgroundWorker (Load folder)"
+
+    Private Sub uxBackground_DoWork(sender As Object, e As DoWorkEventArgs) Handles uxBackground.DoWork
+
+        loadFolderInDB(e.Argument.ToString)
+
+    End Sub
+
+    Private Sub uxBackground_ProgressChanged(sender As Object, e As ProgressChangedEventArgs) Handles uxBackground.ProgressChanged
+
+        Dim elapsed As Double = Now.TimeOfDay.TotalMilliseconds - CDbl(uxProgressBar.Tag)
+        Dim progress As ReportProgress = CType(e.UserState, ReportProgress)
+        uxProgressBar.Value = progress.counter
+        uxStatusLabel.Text = String.Format("FILE {0}/{1} TIME {2}/{3}  {4}",
+                                           uxProgressBar.Value,
+                                           uxProgressBar.Maximum,
+                                           GetStringFormMillis(elapsed),
+                                           GetStringFormMillis(elapsed * (uxProgressBar.Maximum - uxProgressBar.Value) / CDbl(uxProgressBar.Value)),
+                                           progress.entry)
+
+    End Sub
+
+    Private Sub uxBackground_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles uxBackground.RunWorkerCompleted
+
+        loadDevices()
+        uxProgressBar.Visible = False
+        uxProgressBar.Value = 0
+        uxStatusLabel.Text = String.Empty
+        uxbtnLoadFolder.Image = My.Resources.folder
+        uxbtnLoadFolder.Tag = Nothing
+
+    End Sub
+
+#End Region
+
 #Region "Load Data"
 
-    Private Sub uxbtnReloadFolder_Click(sender As Object, e As EventArgs) Handles uxbtnReloadFolder.Click
+    Private Sub uxbtnLoadFolder_Click(sender As Object, e As EventArgs) Handles uxbtnLoadFolder.Click
 
-        If (uxbtnReloadFolder.Tag Is Nothing) Then
+        If (uxbtnLoadFolder.Tag Is Nothing) Then
 
             With New FolderBrowserDialog
                 If (.ShowDialog() = DialogResult.OK) Then
-                    uxProgressLabel.Text = "Scaning filesystem in " & .SelectedPath & "..."
-                    uxProgress.Maximum = DirectoryInfo.getFilesCount(.SelectedPath)
-                    uxProgress.Tag = Now.TimeOfDay.TotalMilliseconds        'Save actual time to make ETA
-                    uxProgress.Value = 0
+                    uxStatusLabel.Text = "Scaning filesystem in " & .SelectedPath & "..."
+                    uxProgressBar.Maximum = FolderInfo.getFilesCount(.SelectedPath)
+                    uxProgressBar.Tag = Now.TimeOfDay.TotalMilliseconds        'Save actual time to make ETA
+                    uxProgressBar.Value = 0
+                    uxProgressBar.Visible = True
                     uxBackground.RunWorkerAsync(.SelectedPath)
-                    uxbtnReloadFolder.Image = My.Resources.alert
-                    uxbtnReloadFolder.Tag = "CANCEL"
+                    uxbtnLoadFolder.Image = My.Resources.alert
+                    uxbtnLoadFolder.Tag = "CANCEL"
                 End If
             End With
 
@@ -87,9 +105,12 @@ Public Class Principal
 
     Private Sub loadFolderInDB(selectedPath As String)
 
-        'init table
+        'init
         Dim device As Device = getDevice(selectedPath)
+        Dim rootFolder As New FolderInfo With {.info = New IO.DirectoryInfo(selectedPath), .id = findFolderId(selectedPath, device)}
         Dim myTableLoad As DataTable = dataBase.Select("SELECT id,name,parent_id,is_folder FROM files WHERE device_id=" & device.id)
+
+        'Erase some useless records from datatable (parents of rootfolder)        
 
         'Timer to show progress
         Dim showProgress As Boolean = False
@@ -97,26 +118,25 @@ Public Class Principal
         AddHandler timer.Elapsed, Sub() showProgress = True
         timer.Enabled = True
 
-        Dim newId As Integer = 0
+        Dim id As Integer = 0
         Dim counter As Integer = 0
 
         'Make a stack to follow the structure
-        Dim stack As New Stack(Of DirectoryInfo)
-        stack.Push(New DirectoryInfo With {.info = New IO.DirectoryInfo(selectedPath), .id = createFolderId(selectedPath, myTableLoad)})
+        Dim stack As New Stack(Of FolderInfo)
+        stack.Push(rootFolder)
 
         While (stack.Count > 0 And Not uxBackground.CancellationPending)
 
-            Dim currentDir As DirectoryInfo = stack.Pop
+            Dim currentDir As FolderInfo = stack.Pop
 
             'TODO Check changes file<->dir
 
             'Delete old nonexisting entries in db
-            For Each entry As DataRow In myTableLoad.Select("parent_id=" & currentDir.id).Where(Function(f) Not (From e In currentDir.info.GetFileSystemInfos
-                                                                                                                 Select e.Name).Contains(f("name").ToString))
+            For Each entry As DataRow In myTableLoad.Select("parent_id=" & currentDir.id.ToString).Where(Function(f) Not (From e In currentDir.info.GetFileSystemInfos
+                                                                                                                          Select e.Name).Contains(f("name").ToString))
                 dataBase.ExecuteNonQuery("DELETE FROM files WHERE id=@id", New MySqlParameter("id", entry("id")))
                 entry.Delete()
             Next
-            myTableLoad.AcceptChanges()
 
             'insert folders
             For Each entry As IO.DirectoryInfo In currentDir.info.GetDirectories
@@ -125,28 +145,28 @@ Public Class Principal
                     entry.GetAccessControl()    'check permissions before insert
                     If (CBool(entry.Attributes And (IO.FileAttributes.Hidden Or IO.FileAttributes.System))) Then Continue For
 
-                    Dim myRowEntry As DataRow = myTableLoad.Select(String.Format("name='{0}' AND parent_id={1}", QuitaComilla(entry.Name), currentDir.id)).FirstOrDefault
+                    Dim myRowEntry As DataRow = myTableLoad.Select(String.Format("is_folder=1 AND name='{0}' AND parent_id={1}", QuitaComilla(entry.Name), currentDir.id)).FirstOrDefault
 
                     'Insert new entries        
                     If (myRowEntry Is Nothing) Then
-                        newId = dataBase.ExecuteScalar("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
-                          "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id); " &
-                          "SELECT LAST_INSERT_ID()",
-                          {New MySqlParameter("name", entry.Name),
-                           New MySqlParameter("parent_id", currentDir.id),
-                           New MySqlParameter("is_folder", 1),
-                           New MySqlParameter("size", Nothing),
-                           New MySqlParameter("creation_date", entry.CreationTime),
-                           New MySqlParameter("device_id", device.id)})
-
-                        myRowEntry = myTableLoad.LoadDataRow({newId, entry.Name, currentDir.id, 1}, True)
+                        id = dataBase.ExecuteScalar("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
+                                                    "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id); " &
+                                                    "SELECT LAST_INSERT_ID()",
+                                                    {New MySqlParameter("name", entry.Name),
+                                                     New MySqlParameter("parent_id", currentDir.id),
+                                                     New MySqlParameter("is_folder", 1),
+                                                     New MySqlParameter("size", Nothing),
+                                                     New MySqlParameter("creation_date", entry.CreationTime),
+                                                     New MySqlParameter("device_id", device.id)})
+                    Else
+                        id = CInt(myRowEntry("id"))
+                        myRowEntry.Delete()
                     End If
 
-                    stack.Push(New DirectoryInfo With {.info = entry, .id = CInt(myRowEntry("id"))})
+                    stack.Push(New FolderInfo With {.info = entry, .id = id})
 
                 Catch ex As Exception
-                    'GetAccessControl throws exception   
-                    'Errores("[" & entry.FullName & "] " & ex.Message, False)
+                    'GetAccessControl throws exception                       
                 End Try
             Next
 
@@ -161,47 +181,64 @@ Public Class Principal
                     showProgress = False
                 End If
 
-
                 'Discard hidden/system files
                 If (CBool(entry.Attributes And (IO.FileAttributes.Hidden Or IO.FileAttributes.System))) Then Continue For
-                Dim myRowEntry As DataRow = myTableLoad.Select(String.Format("name='{0}' AND parent_id={1}", QuitaComilla(entry.Name), currentDir.id)).FirstOrDefault
+                Dim myRowEntry As DataRow = myTableLoad.Select(String.Format("is_folder=0 AND name='{0}' AND parent_id={1}", QuitaComilla(entry.Name), currentDir.id)).FirstOrDefault
 
                 'Insert new entries        
                 If (myRowEntry Is Nothing) Then
-                    newId = dataBase.ExecuteScalar("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
-                      "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id); " &
-                      "SELECT LAST_INSERT_ID()",
-                      {New MySqlParameter("name", entry.Name),
-                       New MySqlParameter("parent_id", currentDir.id),
-                       New MySqlParameter("is_folder", 0),
-                       New MySqlParameter("size", entry.Length),
-                       New MySqlParameter("creation_date", entry.CreationTime),
-                       New MySqlParameter("device_id", device.id)})
 
-                    myTableLoad.LoadDataRow({newId, entry.Name, currentDir.id, 0}, True)
+                    'insert with mediainfo
+                    If (videoExtension.Contains(entry.Extension.ToLower)) Then
 
-                    'insert mediainfo
-                    If (New String() {".avi", ".mkv", ".mp4", ".wmv", ".mpg", ".mpeg", ".m4v", ".rmvb", ".divx", ".mov", ".flv", ".asf", ".3gp"}.Contains(entry.Extension.ToLower)) Then
+                        id = dataBase.ExecuteScalar("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
+                                                   "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id); " &
+                                                   "SELECT LAST_INSERT_ID()",
+                                                   {New MySqlParameter("name", entry.Name),
+                                                    New MySqlParameter("parent_id", currentDir.id),
+                                                    New MySqlParameter("is_folder", 0),
+                                                    New MySqlParameter("size", entry.Length),
+                                                    New MySqlParameter("creation_date", entry.CreationTime),
+                                                    New MySqlParameter("device_id", device.id)})
+
                         Try
                             With New MediaFile(entry.FullName)
                                 dataBase.ExecuteNonQuery("INSERT INTO media_info (file_id,format,duration,v_format,v_codec,v_width,v_height,v_framerate,a_count,a_format,a_bitrate) " &
-                              "VALUES (@file_id,@format,@duration,@v_format,@v_codec,@v_width,@v_height,@v_framerate,@a_count,@a_format,@a_bitrate)",
-                                   {New MySqlParameter("file_id", newId),
-                                    New MySqlParameter("format", getMediaFormatId(.General.FormatID)),
-                                    New MySqlParameter("duration", .General.DurationMillis),
-                                    New MySqlParameter("v_format", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.FormatID))),
-                                    New MySqlParameter("v_codec", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.CodecID))),
-                                    New MySqlParameter("v_width", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Width)),
-                                    New MySqlParameter("v_height", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Height)),
-                                    New MySqlParameter("v_framerate", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.FrameRate)),
-                                    New MySqlParameter("a_count", .Audio.Count),
-                                    New MySqlParameter("a_format", If(.Audio.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Audio.First.FormatID))),
-                                    New MySqlParameter("a_bitrate", If(.Audio.FirstOrDefault Is Nothing, Nothing, .Audio.First.Bitrate))})
+                                                         "VALUES (@file_id,@format,@duration,@v_format,@v_codec,@v_width,@v_height,@v_framerate,@a_count,@a_format,@a_bitrate)",
+                                                         {New MySqlParameter("file_id", id),
+                                                          New MySqlParameter("format", getMediaFormatId(.General.FormatID)),
+                                                          New MySqlParameter("duration", .General.DurationMillis),
+                                                          New MySqlParameter("v_format", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.FormatID))),
+                                                          New MySqlParameter("v_codec", If(.Video.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Video.First.CodecID))),
+                                                          New MySqlParameter("v_width", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Width)),
+                                                          New MySqlParameter("v_height", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.Height)),
+                                                          New MySqlParameter("v_framerate", If(.Video.FirstOrDefault Is Nothing, Nothing, .Video.First.FrameRate)),
+                                                          New MySqlParameter("a_count", .Audio.Count),
+                                                          New MySqlParameter("a_format", If(.Audio.FirstOrDefault Is Nothing, Nothing, getMediaFormatId(.Audio.First.FormatID))),
+                                                          New MySqlParameter("a_bitrate", If(.Audio.FirstOrDefault Is Nothing, Nothing, .Audio.First.Bitrate))})
                             End With
                         Catch ex As Exception
                             Errores("[" & entry.FullName & "] " & ex.Message, False)
                         End Try
+
+
+                    Else
+
+                        'insert without mediainfo
+                        dataBase.ExecuteNonQuery("INSERT INTO files (name,parent_id,is_folder,size,creation_date,device_id) " &
+                                                "VALUES (@name,@parent_id,@is_folder,@size,@creation_date,@device_id)",
+                                                {New MySqlParameter("name", entry.Name),
+                                                New MySqlParameter("parent_id", currentDir.id),
+                                                New MySqlParameter("is_folder", 0),
+                                                New MySqlParameter("size", entry.Length),
+                                                New MySqlParameter("creation_date", entry.CreationTime),
+                                                New MySqlParameter("device_id", device.id)})
+
                     End If
+
+                Else
+
+                    myRowEntry.Delete()
 
                 End If
 
@@ -211,58 +248,64 @@ Public Class Principal
 
     End Sub
 
-    Private Function createFolderId(path As String, ByRef tableLoad As DataTable, Optional parentId As Object = Nothing, Optional device As Device = Nothing) As Integer
+    Private Function findFolderId(path As String, device As Device) As Object
 
-        Dim formatedPath As String = path
+        Dim formatedPath As String = Replace(path, GetPathRoot(path), device.name & DirectorySeparatorChar)
+        Dim id As Object = Nothing
 
-        'If fullpath, drive leter is replaced by drive name and get serial        
-        If (parentId Is Nothing) Then
-            device = getDevice(path)
-            formatedPath = Replace(path, GetPathRoot(path), device.name & DirectorySeparatorChar)
-        End If
+        For Each dir As String In formatedPath.Split(DirectorySeparatorChar)
 
-        Dim myTableResult As DataRow = tableLoad.Select(String.Format("is_folder=1 AND name='{0}' AND ISNULL(parent_id,0)={1}",
-                                                                      QuitaComilla(formatedPath.Split(DirectorySeparatorChar)(0)),
-                                                                      If(parentId Is Nothing, 0, parentId))).FirstOrDefault
+            If (String.IsNullOrEmpty(dir)) Then Continue For
 
-        'Folder not exists then create
-        If (myTableResult Is Nothing) Then
-            myTableResult = dataBase.Select("INSERT INTO files (name,parent_id,is_folder,device_id) VALUES (@name,@parent_id,1,@device_id); " &
-                                            "SELECT id,name,parent_id,is_folder FROM files WHERE id = LAST_INSERT_ID()",
-                                            {New MySqlParameter("name", formatedPath.Split(DirectorySeparatorChar)(0)),
-                                             New MySqlParameter("parent_id", parentId),
-                                             New MySqlParameter("device_id", device.id)}).AsEnumerable.First
-            tableLoad.LoadDataRow(myTableResult.ItemArray, True)
-        End If
+            Dim dirRow As DataRow = dataBase.Select("SELECT id FROM files WHERE device_id=@device_id AND is_folder=1 AND name=@name AND ifnull(parent_id,0)=ifnull(@parent_id,0)",
+                                                    {New MySqlParameter("device_id", device.id),
+                                                    New MySqlParameter("name", dir),
+                                                    New MySqlParameter("parent_id", id)}).AsEnumerable.FirstOrDefault
+            'insert if not exists
+            If (dirRow Is Nothing) Then
+                dirRow = dataBase.Select("INSERT INTO files (name,parent_id,is_folder,device_id) VALUES (@name,@parent_id,1,@device_id); " &
+                                         "SELECT LAST_INSERT_ID() AS id",
+                                         {New MySqlParameter("name", dir),
+                                          New MySqlParameter("parent_id", id),
+                                          New MySqlParameter("device_id", device.id)}).AsEnumerable.First
+            End If
 
-        ''If device name changes update the new name
-        'If (Not myTableResult("name").Equals(formatedPath.Split(DirectorySeparatorChar)(0))) Then
-        '    dataBase.ExecuteNonQuery("UPDATE files SET name=@name WHERE id=@id",
-        '                                  {New MySqlParameter("name", formatedPath.Split(DirectorySeparatorChar)(0)),
-        '                                  New MySqlParameter("id", myTableResult("id"))})
-        'End If
+            id = dirRow("id")
 
-        'Recursive find id
-        If (System.Text.RegularExpressions.Regex.IsMatch(path, ".+\\.+")) Then
-            Return createFolderId(path.Substring(path.IndexOf(DirectorySeparatorChar) + 1), tableLoad, CInt(myTableResult("id")), device)
-        Else
-            Return CInt(myTableResult("id"))
-        End If
+        Next
+
+        Return id
 
     End Function
 
     Private Function getDevice(fullpath As String) As Device
 
         Dim serial As String = GetHDSerialNo(fullpath.Split(":"c)(0))
+        Dim name As String = IO.DriveInfo.GetDrives().First(Function(i) i.Name = GetPathRoot(fullpath)).VolumeLabel
+
         Dim myRowDevice As DataRow = myTableDevices.Select(String.Format("serial='{0}'", serial)).FirstOrDefault
+
         If (myRowDevice IsNot Nothing) Then
-            Return New Device(CInt(myRowDevice("id")), myRowDevice("name").ToString, myRowDevice("serial").ToString)
+
+            'Check for label update
+            If (myRowDevice("name").ToString <> name) Then
+                dataBase.ExecuteNonQuery("UPDATE device SET name=@name WHERE id=@id;" &
+                                         "UPDATE files SET name=@name WHERE device_id=@id AND parent_id IS NULL",
+                                        {New MySqlParameter("name", name),
+                                         New MySqlParameter("id", myRowDevice("id"))})
+                myTableDevices = dataBase.Select("SELECT * FROM vw_device")
+            End If
+
+            Return New Device(CInt(myRowDevice("id")), name, serial)
+
         Else
+
             dataBase.ExecuteNonQuery("INSERT INTO device (name,serial) VALUES (@name,@serial)",
-                                      {New MySqlParameter("name", IO.DriveInfo.GetDrives().First(Function(i) i.Name = GetPathRoot(fullpath)).VolumeLabel),
-                                       New MySqlParameter("serial", serial)})
-            myTableDevices = dataBase.Select(SQL_devices)
+                                    {New MySqlParameter("name", name),
+                                     New MySqlParameter("serial", serial)})
+            myTableDevices = dataBase.Select("SELECT * FROM vw_device")
             Return getDevice(fullpath)
+
         End If
 
     End Function
@@ -278,7 +321,7 @@ Public Class Principal
                 Return CInt(formats(0)("id"))
             Else
                 dataBase.ExecuteNonQuery("INSERT INTO media_format (name) VALUES (@p1)", New MySqlParameter("p1", format))
-                myTableMediaFormat = dataBase.Select(SQL_media_format)
+                myTableMediaFormat = dataBase.Select("SELECT * FROM media_format")
                 Return getMediaFormatId(format)
             End If
 
@@ -288,9 +331,11 @@ Public Class Principal
 
 #End Region
 
+#Region "Explorer"
+
     Private Sub loadDevices()
 
-        myTableDevices = dataBase.Select(SQL_devices)
+        myTableDevices = dataBase.Select("SELECT * FROM vw_device")
 
         uxcmbDeviceNames.DisplayMember = "description"
         uxcmbDeviceNames.ValueMember = "id"
@@ -300,27 +345,21 @@ Public Class Principal
 
     Private Sub uxcmbDeviceNames_SelectedIndexChanged(sender As Object, e As EventArgs) Handles uxcmbDeviceNames.SelectedIndexChanged
 
-        Dim myTableFolders As DataTable = dataBase.Select("SELECT id,name,parent_id FROM files WHERE is_folder=1 AND device_id=@device_id", New MySqlParameter("device_id", uxcmbDeviceNames.SelectedValue))
+        'init table folders
+        Dim myTableFolders As DataTable = dataBase.Select("SELECT id,name,parent_id FROM files WHERE is_folder=1 AND device_id=@device_id",
+                                                          New MySqlParameter("device_id", uxcmbDeviceNames.SelectedValue))
 
+        'load folder tree
         uxTreeFolder.BeginUpdate()
-        loadTreeInternal(CInt(uxcmbDeviceNames.SelectedValue), myTableFolders)
-        uxTreeFolder.EndUpdate()
-
-        uxlstDetail.Items.Clear()
-
-    End Sub
-
-    Private Sub loadTreeInternal(device_id As Integer, ByRef tableFolders As DataTable)
-
         uxTreeFolder.Nodes.Clear()
 
         Dim stack As New Stack(Of TreeNode)
-        Dim node As TreeNode = (From f In tableFolders.Select("parent_id IS NULL").AsEnumerable Select New TreeNode(f("name").ToString) With {.Name = f("id").ToString}).First
+        Dim node As TreeNode = (From f In myTableFolders.Select("parent_id IS NULL").AsEnumerable Select New TreeNode(f("name").ToString) With {.Name = f("id").ToString}).First
         stack.Push(node)
 
         While stack.Count > 0
             Dim currentNode As TreeNode = stack.Pop()
-            For Each myRow As DataRow In tableFolders.Select("parent_id=" & currentNode.Name)
+            For Each myRow As DataRow In myTableFolders.Select("parent_id=" & currentNode.Name)
                 Dim childNode As New TreeNode(myRow("name").ToString) With {.Name = myRow("id").ToString}
                 currentNode.Nodes.Add(childNode)
                 stack.Push(childNode)
@@ -328,10 +367,91 @@ Public Class Principal
         End While
 
         uxTreeFolder.Nodes.Add(node)
+        uxTreeFolder.EndUpdate()
+
+        'clear files list while not selection
+        uxlstFiles.Items.Clear()
 
     End Sub
 
-    Private Sub uxtxtSearch_TextChanged(sender As Object, e As KeyEventArgs) Handles uxtxtSearch.KeyDown
+    Private Sub uxTreeFolder_AfterSelect(sender As Object, e As TreeViewEventArgs) Handles uxTreeFolder.AfterSelect
+
+        Dim numFiles As Integer = 0
+
+        uxlstFiles.BeginUpdate()
+        uxlstFiles.Items.Clear()
+
+        For Each myRow As DataRow In dataBase.Select("SELECT * FROM vw_files WHERE parent_id=@parent_id",
+                                                      New MySqlParameter("parent_id", e.Node.Name)).AsEnumerable.OrderByDescending(Function(r) r("is_folder"))
+            Dim folder As Boolean = (CInt(myRow("is_folder")) = 1)
+            Dim item As New ListViewItem({myRow("name").ToString,
+                                        If(folder, "DIR", FormatFileSize(CLng(myRow("size")))),
+                                        If(Not IsNumeric(myRow("duration")), String.Empty, GetStringFormMillis(CLng(myRow("duration")))),
+                                        myRow("v_format").ToString,
+                                        myRow("v_codec").ToString,
+                                        myRow("a_format").ToString,
+                                        myRow("creation_date").ToString
+                                        })
+            item.Name = myRow("id").ToString
+            item.ImageIndex = If(folder, 0, 1)
+            uxlstFiles.Items.Add(item)
+
+            If (Not folder) Then numFiles += 1
+
+        Next
+
+        uxlstFiles.EndUpdate()
+
+        uxStatusFiles.Text = String.Format("{0:N0} Files", numFiles)
+        uxStatusLabel.Text = uxTreeFolder.SelectedNode.FullPath
+
+    End Sub
+
+    Private Sub uxlstDetail_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles uxlstFiles.MouseDoubleClick
+
+        Dim item As ListViewItem = uxlstFiles.HitTest(e.X, e.Y).Item
+        If (item IsNot Nothing) Then
+            Dim dir As TreeNode = uxTreeFolder.Nodes.Find(item.Name, True).FirstOrDefault
+            If (dir IsNot Nothing) Then
+                dir.EnsureVisible()
+                uxTreeFolder.SelectedNode = dir
+            End If
+        End If
+
+    End Sub
+
+    Private Sub uxlstDetail_SelectedIndexChanged(sender As Object, e As EventArgs) Handles uxlstFiles.SelectedIndexChanged
+
+        If (uxlstFiles.SelectedItems.Count > 0) Then
+            uxStatusLabel.Text = Combine(uxTreeFolder.SelectedNode.FullPath, uxlstFiles.SelectedItems(0).Text)
+        ElseIf uxTreeFolder.SelectedNode IsNot Nothing Then
+            uxStatusLabel.Text = uxTreeFolder.SelectedNode.FullPath
+        End If
+
+    End Sub
+
+#End Region
+
+#Region "Filters"
+
+    Private Sub uxchkVideo_CheckedChanged(sender As Object, e As EventArgs) Handles uxchkVideo.CheckedChanged
+
+    End Sub
+
+    Private Sub uxchkFilesOnly_CheckedChanged(sender As Object, e As EventArgs) Handles uxchkFilesOnly.CheckedChanged
+
+    End Sub
+
+    Private Sub uxcmbExtensions_SelectedIndexChanged(sender As Object, e As EventArgs) Handles uxcmbExtensions.SelectedIndexChanged
+
+    End Sub
+
+    Private Sub uxbntSearch_Click(sender As Object, e As EventArgs) Handles uxbntSearch.Click
+
+    End Sub
+
+    Private Sub uxtxtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles uxtxtSearch.KeyDown
+
         Static count As Integer = 0
 
         'search in the treeview for the first match
@@ -345,7 +465,7 @@ Public Class Principal
                     uxTreeFolder.SelectedNode = uxTreeFolder.Nodes.Find(myRow("id").ToString, True).FirstOrDefault
                 Else
                     uxTreeFolder.SelectedNode = uxTreeFolder.Nodes.Find(myRow("parent_id").ToString, True).FirstOrDefault
-                    With uxlstDetail.Items.Find(myRow("id").ToString, False).FirstOrDefault
+                    With uxlstFiles.Items.Find(myRow("id").ToString, False).FirstOrDefault
                         .Selected = True
                         .EnsureVisible()
                     End With
@@ -362,53 +482,6 @@ Public Class Principal
 
     End Sub
 
-    Private Sub uxTreeFolder_AfterSelect(sender As Object, e As TreeViewEventArgs) Handles uxTreeFolder.AfterSelect
-
-        uxlstDetail.BeginUpdate()
-
-        uxlstDetail.Items.Clear()
-        For Each myRow As DataRow In dataBase.Select(SQL_files & " WHERE parent_id=@parent_id",
-                                                      New MySqlParameter("parent_id", e.Node.Name)).AsEnumerable.OrderByDescending(Function(r) r("is_folder"))
-            Dim folder As Boolean = (CInt(myRow("is_folder")) = 1)
-            Dim item As New ListViewItem({myRow("name").ToString,
-                                        If(folder, "DIR", FormatFileSize(CLng(myRow("size")))),
-                                        If(Not IsNumeric(myRow("duration")), String.Empty, GetStringFormMillis(CLng(myRow("duration")))),
-                                        myRow("v_format").ToString,
-                                        myRow("v_codec").ToString,
-                                        myRow("a_format").ToString,
-                                        myRow("creation_date").ToString
-                                        })
-            item.Name = myRow("id").ToString
-            item.ImageIndex = If(folder, 0, 1)
-            uxlstDetail.Items.Add(item)
-
-        Next
-
-        uxlstDetail.EndUpdate()
-
-        uxProgressLabel.Text = uxTreeFolder.SelectedNode.FullPath
-
-    End Sub
-
-    Private Sub uxlstDetail_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles uxlstDetail.MouseDoubleClick
-
-        Dim item As ListViewItem = uxlstDetail.HitTest(e.X, e.Y).Item
-        If (item IsNot Nothing) Then
-            Dim dir As TreeNode = uxTreeFolder.Nodes.Find(item.Name, True).FirstOrDefault
-            If (dir IsNot Nothing) Then
-                dir.EnsureVisible()
-                uxTreeFolder.SelectedNode = dir
-            End If
-        End If
-
-    End Sub
-
-    Private Sub uxlstDetail_SelectedIndexChanged(sender As Object, e As EventArgs) Handles uxlstDetail.SelectedIndexChanged
-        If (uxlstDetail.SelectedItems.Count > 0) Then
-            uxProgressLabel.Text = Combine(uxTreeFolder.SelectedNode.FullPath, uxlstDetail.SelectedItems(0).Text)
-        ElseIf uxTreeFolder.SelectedNode IsNot Nothing Then
-            uxProgressLabel.Text = uxTreeFolder.SelectedNode.FullPath
-        End If
-    End Sub
+#End Region
 
 End Class
