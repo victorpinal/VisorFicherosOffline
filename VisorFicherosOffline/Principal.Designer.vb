@@ -63,7 +63,7 @@ Partial Class Principal
         Me.uxtxtSearch.Location = New System.Drawing.Point(0, 0)
         Me.uxtxtSearch.Multiline = True
         Me.uxtxtSearch.Name = "uxtxtSearch"
-        Me.uxtxtSearch.Size = New System.Drawing.Size(168, 23)
+        Me.uxtxtSearch.Size = New System.Drawing.Size(185, 23)
         Me.uxtxtSearch.TabIndex = 2
         '
         'uxTreeFolder
@@ -238,7 +238,7 @@ Partial Class Principal
         '
         Me.uxbntSearch.AutoSize = True
         Me.uxbntSearch.Image = Global.VisorFicherosOffline.My.Resources.Resources.search
-        Me.uxbntSearch.Location = New System.Drawing.Point(174, 0)
+        Me.uxbntSearch.Location = New System.Drawing.Point(191, 0)
         Me.uxbntSearch.Name = "uxbntSearch"
         Me.uxbntSearch.Size = New System.Drawing.Size(67, 23)
         Me.uxbntSearch.TabIndex = 3
@@ -249,7 +249,7 @@ Partial Class Principal
         'uxlblFilterbyExtension
         '
         Me.uxlblFilterbyExtension.AutoSize = True
-        Me.uxlblFilterbyExtension.Location = New System.Drawing.Point(258, 6)
+        Me.uxlblFilterbyExtension.Location = New System.Drawing.Point(264, 6)
         Me.uxlblFilterbyExtension.Name = "uxlblFilterbyExtension"
         Me.uxlblFilterbyExtension.Size = New System.Drawing.Size(61, 13)
         Me.uxlblFilterbyExtension.TabIndex = 5
@@ -258,15 +258,15 @@ Partial Class Principal
         'uxcmbExtensions
         '
         Me.uxcmbExtensions.FormattingEnabled = True
-        Me.uxcmbExtensions.Location = New System.Drawing.Point(321, 2)
+        Me.uxcmbExtensions.Location = New System.Drawing.Point(327, 2)
         Me.uxcmbExtensions.Name = "uxcmbExtensions"
-        Me.uxcmbExtensions.Size = New System.Drawing.Size(121, 21)
+        Me.uxcmbExtensions.Size = New System.Drawing.Size(63, 21)
         Me.uxcmbExtensions.TabIndex = 4
         '
         'uxchkVideo
         '
         Me.uxchkVideo.AutoSize = True
-        Me.uxchkVideo.Location = New System.Drawing.Point(457, 5)
+        Me.uxchkVideo.Location = New System.Drawing.Point(401, 5)
         Me.uxchkVideo.Name = "uxchkVideo"
         Me.uxchkVideo.Size = New System.Drawing.Size(53, 17)
         Me.uxchkVideo.TabIndex = 6
@@ -276,7 +276,7 @@ Partial Class Principal
         'uxchkFilesOnly
         '
         Me.uxchkFilesOnly.AutoSize = True
-        Me.uxchkFilesOnly.Location = New System.Drawing.Point(516, 5)
+        Me.uxchkFilesOnly.Location = New System.Drawing.Point(455, 5)
         Me.uxchkFilesOnly.Name = "uxchkFilesOnly"
         Me.uxchkFilesOnly.Size = New System.Drawing.Size(69, 17)
         Me.uxchkFilesOnly.TabIndex = 7

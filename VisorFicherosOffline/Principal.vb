@@ -382,8 +382,12 @@ Public Class Principal
         uxlstFiles.Items.Clear()
 
         For Each myRow As DataRow In dataBase.Select("SELECT * FROM vw_files WHERE parent_id=@parent_id",
-                                                      New MySqlParameter("parent_id", e.Node.Name)).AsEnumerable.OrderByDescending(Function(r) r("is_folder"))
+                                                      New MySqlParameter("parent_id", uxTreeFolder.SelectedNode.Name)).AsEnumerable.OrderByDescending(Function(r) r("is_folder"))
             Dim folder As Boolean = (CInt(myRow("is_folder")) = 1)
+            'Filters
+            If (uxchkFilesOnly.Checked And folder) Then Continue For
+            If (uxchkVideo.Checked And Not folder And Not videoExtension.Contains(GetExtension(myRow("name").ToString))) Then Continue For
+            'End filters
             Dim item As New ListViewItem({myRow("name").ToString,
                                         If(folder, "DIR", FormatFileSize(CLng(myRow("size")))),
                                         If(Not IsNumeric(myRow("duration")), String.Empty, GetStringFormMillis(CLng(myRow("duration")))),
@@ -436,49 +440,59 @@ Public Class Principal
 
     Private Sub uxchkVideo_CheckedChanged(sender As Object, e As EventArgs) Handles uxchkVideo.CheckedChanged
 
+        If (uxTreeFolder.SelectedNode IsNot Nothing) Then uxTreeFolder_AfterSelect(Nothing, Nothing)
+
     End Sub
 
     Private Sub uxchkFilesOnly_CheckedChanged(sender As Object, e As EventArgs) Handles uxchkFilesOnly.CheckedChanged
+
+        If (uxTreeFolder.SelectedNode IsNot Nothing) Then uxTreeFolder_AfterSelect(Nothing, Nothing)
 
     End Sub
 
     Private Sub uxcmbExtensions_SelectedIndexChanged(sender As Object, e As EventArgs) Handles uxcmbExtensions.SelectedIndexChanged
 
+        If (uxTreeFolder.SelectedNode IsNot Nothing) Then uxTreeFolder_AfterSelect(Nothing, Nothing)
+
     End Sub
 
     Private Sub uxbntSearch_Click(sender As Object, e As EventArgs) Handles uxbntSearch.Click
+
+        Static text As String = String.Empty
+        Static count As Integer
+        If (text <> uxtxtSearch.Text) Then
+            text = uxtxtSearch.Text
+            count = 0
+        End If
+
+        'search in the treeview for the first match
+
+        Dim myRow As DataRow = dataBase.Select("SELECT id,is_folder,parent_id FROM files WHERE device_id=@device_id AND name LIKE @name",
+                                                   {New MySqlParameter("device_id", uxcmbDeviceNames.SelectedValue),
+                                                    New MySqlParameter("name", "%" & QuitaComilla(uxtxtSearch.Text) & "%")}).AsEnumerable.Skip(count).FirstOrDefault
+        If (myRow IsNot Nothing) Then
+            If (CInt(myRow("is_folder")) = 1) Then
+                uxTreeFolder.SelectedNode = uxTreeFolder.Nodes.Find(myRow("id").ToString, True).FirstOrDefault
+                uxTreeFolder.Focus()
+            Else
+                uxTreeFolder.SelectedNode = uxTreeFolder.Nodes.Find(myRow("parent_id").ToString, True).FirstOrDefault
+                'TODOD check filters
+                With uxlstFiles.Items.Find(myRow("id").ToString, False).FirstOrDefault
+                    .Selected = True
+                    .EnsureVisible()
+                End With
+                uxlstFiles.Focus()
+            End If
+            count += 1
+        Else
+            count = 0
+        End If
 
     End Sub
 
     Private Sub uxtxtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles uxtxtSearch.KeyDown
 
-        Static count As Integer = 0
-
-        'search in the treeview for the first match
-        If (e.KeyCode = Keys.Enter) Then
-
-            Dim myRow As DataRow = dataBase.Select("SELECT id,is_folder,parent_id FROM files WHERE device_id=@device_id AND name LIKE @name",
-                                                   {New MySqlParameter("device_id", uxcmbDeviceNames.SelectedValue),
-                                                    New MySqlParameter("name", "%" & QuitaComilla(uxtxtSearch.Text) & "%")}).AsEnumerable.Skip(count).FirstOrDefault
-            If (myRow IsNot Nothing) Then
-                If (CInt(myRow("is_folder")) = 1) Then
-                    uxTreeFolder.SelectedNode = uxTreeFolder.Nodes.Find(myRow("id").ToString, True).FirstOrDefault
-                Else
-                    uxTreeFolder.SelectedNode = uxTreeFolder.Nodes.Find(myRow("parent_id").ToString, True).FirstOrDefault
-                    With uxlstFiles.Items.Find(myRow("id").ToString, False).FirstOrDefault
-                        .Selected = True
-                        .EnsureVisible()
-                    End With
-                End If
-                count += 1
-            Else
-                count = 0
-            End If
-        Else
-
-            count = 0
-
-        End If
+        If (e.KeyCode = Keys.Enter) Then uxbntSearch.PerformClick()
 
     End Sub
 
