@@ -108,6 +108,7 @@
     <Compile Include="Clases\BaseDatos.vb" />
     <Compile Include="Clases\FolderInfo.vb" />
     <Compile Include="Clases\Device.vb" />
+    <Compile Include="Clases\ListViewItemComparer.vb" />
     <Compile Include="Clases\ReportProgress.vb" />
     <Compile Include="modCommon.vb" />
     <Compile Include="Principal.vb">

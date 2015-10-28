@@ -496,6 +496,31 @@ Public Class Principal
 
     End Sub
 
+    Private Sub uxlstFiles_ColumnClick(sender As Object, e As ColumnClickEventArgs) Handles uxlstFiles.ColumnClick
+
+        Static sortColumn As Integer = -1
+
+        uxlstFiles.SuspendLayout()
+
+        If (e.Column <> sortColumn) Then
+            sortColumn = e.Column                       ' Set the sort column to the new column.            
+            uxlstFiles.Sorting = SortOrder.Ascending    ' Set the sort order to ascending by default.
+        Else
+            ' Determine what the last sort order was and change it.
+            If (uxlstFiles.Sorting = SortOrder.Ascending) Then
+                uxlstFiles.Sorting = SortOrder.Descending
+            Else
+                uxlstFiles.Sorting = SortOrder.Ascending
+            End If
+        End If
+
+        uxlstFiles.ListViewItemSorter = New ListViewItemComparer(e.Column, uxlstFiles.Sorting)
+        uxlstFiles.Sort()
+
+        uxlstFiles.ResumeLayout()
+
+    End Sub
+
 #End Region
 
 End Class
