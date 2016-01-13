@@ -33,6 +33,9 @@ Partial Class Principal
         Me.uxbtnLoadFolder = New System.Windows.Forms.Button()
         Me.uxpnlResumen = New System.Windows.Forms.Panel()
         Me.uxPbDevice = New System.Windows.Forms.ProgressBar()
+        Me.uxlblDevice1 = New System.Windows.Forms.Label()
+        Me.uxlblDevice2 = New System.Windows.Forms.Label()
+        Me.uxlblDevice3 = New System.Windows.Forms.Label()
         Me.uxlstFiles = New System.Windows.Forms.ListView()
         Me.uxColumnName = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.uxColumnSize = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
@@ -52,9 +55,6 @@ Partial Class Principal
         Me.uxcmbExtensions = New System.Windows.Forms.ComboBox()
         Me.uxchkVideo = New System.Windows.Forms.CheckBox()
         Me.uxchkFilesOnly = New System.Windows.Forms.CheckBox()
-        Me.uxlblDevice2 = New System.Windows.Forms.Label()
-        Me.uxlblDevice1 = New System.Windows.Forms.Label()
-        Me.uxlblDevice3 = New System.Windows.Forms.Label()
         CType(Me.uxSplitExplorer, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.uxSplitExplorer.Panel1.SuspendLayout()
         Me.uxSplitExplorer.Panel2.SuspendLayout()
@@ -179,8 +179,36 @@ Partial Class Principal
         Me.uxPbDevice.MarqueeAnimationSpeed = 0
         Me.uxPbDevice.Name = "uxPbDevice"
         Me.uxPbDevice.Size = New System.Drawing.Size(186, 13)
-        Me.uxPbDevice.Style = System.Windows.Forms.ProgressBarStyle.Marquee
+        Me.uxPbDevice.Step = 1
         Me.uxPbDevice.TabIndex = 0
+        '
+        'uxlblDevice1
+        '
+        Me.uxlblDevice1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.uxlblDevice1.Location = New System.Drawing.Point(188, 3)
+        Me.uxlblDevice1.Name = "uxlblDevice1"
+        Me.uxlblDevice1.Size = New System.Drawing.Size(60, 13)
+        Me.uxlblDevice1.TabIndex = 2
+        Me.uxlblDevice1.Text = "Label1"
+        Me.uxlblDevice1.TextAlign = System.Drawing.ContentAlignment.TopRight
+        '
+        'uxlblDevice2
+        '
+        Me.uxlblDevice2.AutoSize = True
+        Me.uxlblDevice2.Location = New System.Drawing.Point(3, 19)
+        Me.uxlblDevice2.Name = "uxlblDevice2"
+        Me.uxlblDevice2.Size = New System.Drawing.Size(39, 13)
+        Me.uxlblDevice2.TabIndex = 1
+        Me.uxlblDevice2.Text = "Label1"
+        '
+        'uxlblDevice3
+        '
+        Me.uxlblDevice3.AutoSize = True
+        Me.uxlblDevice3.Location = New System.Drawing.Point(3, 34)
+        Me.uxlblDevice3.Name = "uxlblDevice3"
+        Me.uxlblDevice3.Size = New System.Drawing.Size(39, 13)
+        Me.uxlblDevice3.TabIndex = 3
+        Me.uxlblDevice3.Text = "Label1"
         '
         'uxlstFiles
         '
@@ -328,34 +356,6 @@ Partial Class Principal
         Me.uxchkFilesOnly.TabIndex = 7
         Me.uxchkFilesOnly.Text = "Files only"
         Me.uxchkFilesOnly.UseVisualStyleBackColor = True
-        '
-        'uxlblDevice2
-        '
-        Me.uxlblDevice2.AutoSize = True
-        Me.uxlblDevice2.Location = New System.Drawing.Point(3, 19)
-        Me.uxlblDevice2.Name = "uxlblDevice2"
-        Me.uxlblDevice2.Size = New System.Drawing.Size(39, 13)
-        Me.uxlblDevice2.TabIndex = 1
-        Me.uxlblDevice2.Text = "Label1"
-        '
-        'uxlblDevice1
-        '
-        Me.uxlblDevice1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.uxlblDevice1.Location = New System.Drawing.Point(188, 3)
-        Me.uxlblDevice1.Name = "uxlblDevice1"
-        Me.uxlblDevice1.Size = New System.Drawing.Size(60, 13)
-        Me.uxlblDevice1.TabIndex = 2
-        Me.uxlblDevice1.Text = "Label1"
-        Me.uxlblDevice1.TextAlign = System.Drawing.ContentAlignment.TopRight
-        '
-        'uxlblDevice3
-        '
-        Me.uxlblDevice3.AutoSize = True
-        Me.uxlblDevice3.Location = New System.Drawing.Point(3, 34)
-        Me.uxlblDevice3.Name = "uxlblDevice3"
-        Me.uxlblDevice3.Size = New System.Drawing.Size(39, 13)
-        Me.uxlblDevice3.TabIndex = 3
-        Me.uxlblDevice3.Text = "Label1"
         '
         'Principal
         '
