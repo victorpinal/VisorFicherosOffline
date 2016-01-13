@@ -281,7 +281,8 @@ Public Class Principal
     Private Function getDevice(fullpath As String) As Device
 
         Dim serial As String = GetHDSerialNo(fullpath.Split(":"c)(0))
-        Dim name As String = IO.DriveInfo.GetDrives().First(Function(i) i.Name = GetPathRoot(fullpath)).VolumeLabel
+        Dim device As IO.DriveInfo = IO.DriveInfo.GetDrives().First(Function(i) i.Name = GetPathRoot(fullpath))
+        Dim name As String = device.VolumeLabel
 
         Dim myRowDevice As DataRow = myTableDevices.Select(String.Format("serial='{0}'", serial)).FirstOrDefault
 
@@ -296,12 +297,23 @@ Public Class Principal
                 myTableDevices = dataBase.Select("SELECT * FROM vw_device")
             End If
 
+            'Check for free_size update
+            If (CLng(myRowDevice("device_freesize")) <> device.TotalFreeSpace) Then
+                dataBase.ExecuteNonQuery("UPDATE device SET size=@size, freesize=@freesize WHERE id=@id;",
+                                        {New MySqlParameter("size", device.TotalSize),
+                                         New MySqlParameter("freesize", device.TotalFreeSpace),
+                                         New MySqlParameter("id", myRowDevice("id"))})
+                myTableDevices = dataBase.Select("SELECT * FROM vw_device")
+            End If
+
             Return New Device(CInt(myRowDevice("id")), name, serial)
 
         Else
 
-            dataBase.ExecuteNonQuery("INSERT INTO device (name,serial) VALUES (@name,@serial)",
+            dataBase.ExecuteNonQuery("INSERT INTO device (name,serial,size,freesize) VALUES (@name,@serial,@size,@freesize)",
                                     {New MySqlParameter("name", name),
+                                     New MySqlParameter("size", device.TotalSize),
+                                     New MySqlParameter("freesize", device.TotalFreeSpace),
                                      New MySqlParameter("serial", serial)})
             myTableDevices = dataBase.Select("SELECT * FROM vw_device")
             Return getDevice(fullpath)
@@ -372,11 +384,20 @@ Public Class Principal
         'clear files list while not selection
         uxlstFiles.Items.Clear()
 
+        'Drive Info
+        Dim myDeviceRow As DataRow = myTableDevices.Select("id=" & uxcmbDeviceNames.SelectedValue.ToString)(0)
+        uxPbDevice.Maximum = CInt(CLng(myDeviceRow("device_size")) \ 1024 \ 1024)
+        uxPbDevice.Value = CInt((CLng(myDeviceRow("device_size")) - CLng(myDeviceRow("device_freesize"))) \ 1024 \ 1024)
+        uxlblDevice1.Text = String.Format("{0}", FormatFileSize(CLng(myDeviceRow("device_size"))))
+        uxlblDevice2.Text = String.Format("{0} Ocupados - {1} Libres", FormatFileSize(CLng(myDeviceRow("device_size")) - CLng(myDeviceRow("device_freesize"))), FormatFileSize(CLng(myDeviceRow("device_freesize"))))
+        uxlblDevice3.Text = String.Format("{0:N0} Folders - {1:N0} Files - {2} Size", myDeviceRow("folders"), myDeviceRow("files"), FormatFileSize(CLng(myDeviceRow("files_size"))))
+
     End Sub
 
     Private Sub uxTreeFolder_AfterSelect(sender As Object, e As TreeViewEventArgs) Handles uxTreeFolder.AfterSelect
 
         Dim numFiles As Integer = 0
+        Dim tamaño As Long = 0
 
         uxlstFiles.BeginUpdate()
         uxlstFiles.Items.Clear()
@@ -400,13 +421,16 @@ Public Class Principal
             item.ImageIndex = If(folder, 0, 1)
             uxlstFiles.Items.Add(item)
 
-            If (Not folder) Then numFiles += 1
+            If (Not folder) Then
+                numFiles += 1
+                tamaño += CLng(myRow("size"))
+            End If
 
         Next
 
         uxlstFiles.EndUpdate()
 
-        uxStatusFiles.Text = String.Format("{0:N0} Files", numFiles)
+        uxStatusFiles.Text = String.Format("{0:N0} Files - {1}", numFiles, FormatFileSize(tamaño))
         uxStatusLabel.Text = uxTreeFolder.SelectedNode.FullPath
 
     End Sub
@@ -492,7 +516,10 @@ Public Class Principal
 
     Private Sub uxtxtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles uxtxtSearch.KeyDown
 
-        If (e.KeyCode = Keys.Enter) Then uxbntSearch.PerformClick()
+        If (e.KeyCode = Keys.Enter) Then
+            uxbntSearch.PerformClick()
+            uxtxtSearch.Focus()
+        End If
 
     End Sub
 

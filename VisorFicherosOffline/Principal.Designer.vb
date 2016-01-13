@@ -28,8 +28,11 @@ Partial Class Principal
         Me.uxImageList = New System.Windows.Forms.ImageList(Me.components)
         Me.uxcmbDeviceNames = New System.Windows.Forms.ComboBox()
         Me.uxSplitExplorer = New System.Windows.Forms.SplitContainer()
+        Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.uxpnlDevices = New System.Windows.Forms.Panel()
         Me.uxbtnLoadFolder = New System.Windows.Forms.Button()
+        Me.uxpnlResumen = New System.Windows.Forms.Panel()
+        Me.uxPbDevice = New System.Windows.Forms.ProgressBar()
         Me.uxlstFiles = New System.Windows.Forms.ListView()
         Me.uxColumnName = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.uxColumnSize = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
@@ -49,11 +52,16 @@ Partial Class Principal
         Me.uxcmbExtensions = New System.Windows.Forms.ComboBox()
         Me.uxchkVideo = New System.Windows.Forms.CheckBox()
         Me.uxchkFilesOnly = New System.Windows.Forms.CheckBox()
+        Me.uxlblDevice2 = New System.Windows.Forms.Label()
+        Me.uxlblDevice1 = New System.Windows.Forms.Label()
+        Me.uxlblDevice3 = New System.Windows.Forms.Label()
         CType(Me.uxSplitExplorer, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.uxSplitExplorer.Panel1.SuspendLayout()
         Me.uxSplitExplorer.Panel2.SuspendLayout()
         Me.uxSplitExplorer.SuspendLayout()
+        Me.TableLayoutPanel1.SuspendLayout()
         Me.uxpnlDevices.SuspendLayout()
+        Me.uxpnlResumen.SuspendLayout()
         Me.uxStatusBar.SuspendLayout()
         Me.uxPanelFiltros.SuspendLayout()
         Me.SuspendLayout()
@@ -61,9 +69,8 @@ Partial Class Principal
         'uxtxtSearch
         '
         Me.uxtxtSearch.Location = New System.Drawing.Point(0, 0)
-        Me.uxtxtSearch.Multiline = True
         Me.uxtxtSearch.Name = "uxtxtSearch"
-        Me.uxtxtSearch.Size = New System.Drawing.Size(185, 23)
+        Me.uxtxtSearch.Size = New System.Drawing.Size(185, 20)
         Me.uxtxtSearch.TabIndex = 2
         '
         'uxTreeFolder
@@ -74,11 +81,11 @@ Partial Class Principal
         Me.uxTreeFolder.HotTracking = True
         Me.uxTreeFolder.ImageIndex = 0
         Me.uxTreeFolder.ImageList = Me.uxImageList
-        Me.uxTreeFolder.Location = New System.Drawing.Point(0, 25)
+        Me.uxTreeFolder.Location = New System.Drawing.Point(3, 34)
         Me.uxTreeFolder.Name = "uxTreeFolder"
         Me.uxTreeFolder.SelectedImageIndex = 0
         Me.uxTreeFolder.ShowNodeToolTips = True
-        Me.uxTreeFolder.Size = New System.Drawing.Size(257, 645)
+        Me.uxTreeFolder.Size = New System.Drawing.Size(251, 567)
         Me.uxTreeFolder.TabIndex = 0
         '
         'uxImageList
@@ -94,7 +101,7 @@ Partial Class Principal
         Me.uxcmbDeviceNames.FormattingEnabled = True
         Me.uxcmbDeviceNames.Location = New System.Drawing.Point(0, 0)
         Me.uxcmbDeviceNames.Name = "uxcmbDeviceNames"
-        Me.uxcmbDeviceNames.Size = New System.Drawing.Size(230, 21)
+        Me.uxcmbDeviceNames.Size = New System.Drawing.Size(224, 21)
         Me.uxcmbDeviceNames.TabIndex = 0
         '
         'uxSplitExplorer
@@ -105,8 +112,7 @@ Partial Class Principal
         '
         'uxSplitExplorer.Panel1
         '
-        Me.uxSplitExplorer.Panel1.Controls.Add(Me.uxTreeFolder)
-        Me.uxSplitExplorer.Panel1.Controls.Add(Me.uxpnlDevices)
+        Me.uxSplitExplorer.Panel1.Controls.Add(Me.TableLayoutPanel1)
         '
         'uxSplitExplorer.Panel2
         '
@@ -115,14 +121,31 @@ Partial Class Principal
         Me.uxSplitExplorer.SplitterDistance = 257
         Me.uxSplitExplorer.TabIndex = 4
         '
+        'TableLayoutPanel1
+        '
+        Me.TableLayoutPanel1.ColumnCount = 1
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel1.Controls.Add(Me.uxpnlDevices, 0, 0)
+        Me.TableLayoutPanel1.Controls.Add(Me.uxTreeFolder, 0, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.uxpnlResumen, 0, 2)
+        Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
+        Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
+        Me.TableLayoutPanel1.RowCount = 3
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle())
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle())
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(257, 670)
+        Me.TableLayoutPanel1.TabIndex = 6
+        '
         'uxpnlDevices
         '
         Me.uxpnlDevices.Controls.Add(Me.uxcmbDeviceNames)
         Me.uxpnlDevices.Controls.Add(Me.uxbtnLoadFolder)
-        Me.uxpnlDevices.Dock = System.Windows.Forms.DockStyle.Top
-        Me.uxpnlDevices.Location = New System.Drawing.Point(0, 0)
+        Me.uxpnlDevices.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.uxpnlDevices.Location = New System.Drawing.Point(3, 3)
         Me.uxpnlDevices.Name = "uxpnlDevices"
-        Me.uxpnlDevices.Size = New System.Drawing.Size(257, 25)
+        Me.uxpnlDevices.Size = New System.Drawing.Size(251, 25)
         Me.uxpnlDevices.TabIndex = 5
         '
         'uxbtnLoadFolder
@@ -130,11 +153,34 @@ Partial Class Principal
         Me.uxbtnLoadFolder.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.uxbtnLoadFolder.AutoSize = True
         Me.uxbtnLoadFolder.Image = Global.VisorFicherosOffline.My.Resources.Resources.folder
-        Me.uxbtnLoadFolder.Location = New System.Drawing.Point(233, -1)
+        Me.uxbtnLoadFolder.Location = New System.Drawing.Point(227, -1)
         Me.uxbtnLoadFolder.Name = "uxbtnLoadFolder"
         Me.uxbtnLoadFolder.Size = New System.Drawing.Size(24, 23)
         Me.uxbtnLoadFolder.TabIndex = 1
         Me.uxbtnLoadFolder.UseVisualStyleBackColor = True
+        '
+        'uxpnlResumen
+        '
+        Me.uxpnlResumen.Controls.Add(Me.uxPbDevice)
+        Me.uxpnlResumen.Controls.Add(Me.uxlblDevice1)
+        Me.uxpnlResumen.Controls.Add(Me.uxlblDevice2)
+        Me.uxpnlResumen.Controls.Add(Me.uxlblDevice3)
+        Me.uxpnlResumen.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.uxpnlResumen.Location = New System.Drawing.Point(3, 607)
+        Me.uxpnlResumen.Name = "uxpnlResumen"
+        Me.uxpnlResumen.Size = New System.Drawing.Size(251, 60)
+        Me.uxpnlResumen.TabIndex = 6
+        '
+        'uxPbDevice
+        '
+        Me.uxPbDevice.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.uxPbDevice.Location = New System.Drawing.Point(3, 3)
+        Me.uxPbDevice.MarqueeAnimationSpeed = 0
+        Me.uxPbDevice.Name = "uxPbDevice"
+        Me.uxPbDevice.Size = New System.Drawing.Size(186, 13)
+        Me.uxPbDevice.Style = System.Windows.Forms.ProgressBarStyle.Marquee
+        Me.uxPbDevice.TabIndex = 0
         '
         'uxlstFiles
         '
@@ -283,6 +329,34 @@ Partial Class Principal
         Me.uxchkFilesOnly.Text = "Files only"
         Me.uxchkFilesOnly.UseVisualStyleBackColor = True
         '
+        'uxlblDevice2
+        '
+        Me.uxlblDevice2.AutoSize = True
+        Me.uxlblDevice2.Location = New System.Drawing.Point(3, 19)
+        Me.uxlblDevice2.Name = "uxlblDevice2"
+        Me.uxlblDevice2.Size = New System.Drawing.Size(39, 13)
+        Me.uxlblDevice2.TabIndex = 1
+        Me.uxlblDevice2.Text = "Label1"
+        '
+        'uxlblDevice1
+        '
+        Me.uxlblDevice1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.uxlblDevice1.Location = New System.Drawing.Point(188, 3)
+        Me.uxlblDevice1.Name = "uxlblDevice1"
+        Me.uxlblDevice1.Size = New System.Drawing.Size(60, 13)
+        Me.uxlblDevice1.TabIndex = 2
+        Me.uxlblDevice1.Text = "Label1"
+        Me.uxlblDevice1.TextAlign = System.Drawing.ContentAlignment.TopRight
+        '
+        'uxlblDevice3
+        '
+        Me.uxlblDevice3.AutoSize = True
+        Me.uxlblDevice3.Location = New System.Drawing.Point(3, 34)
+        Me.uxlblDevice3.Name = "uxlblDevice3"
+        Me.uxlblDevice3.Size = New System.Drawing.Size(39, 13)
+        Me.uxlblDevice3.TabIndex = 3
+        Me.uxlblDevice3.Text = "Label1"
+        '
         'Principal
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -298,8 +372,11 @@ Partial Class Principal
         Me.uxSplitExplorer.Panel2.ResumeLayout(False)
         CType(Me.uxSplitExplorer, System.ComponentModel.ISupportInitialize).EndInit()
         Me.uxSplitExplorer.ResumeLayout(False)
+        Me.TableLayoutPanel1.ResumeLayout(False)
         Me.uxpnlDevices.ResumeLayout(False)
         Me.uxpnlDevices.PerformLayout()
+        Me.uxpnlResumen.ResumeLayout(False)
+        Me.uxpnlResumen.PerformLayout()
         Me.uxStatusBar.ResumeLayout(False)
         Me.uxStatusBar.PerformLayout()
         Me.uxPanelFiltros.ResumeLayout(False)
@@ -335,4 +412,10 @@ Partial Class Principal
     Friend WithEvents uxlblFilterbyExtension As Label
     Friend WithEvents uxchkFilesOnly As CheckBox
     Friend WithEvents uxchkVideo As CheckBox
+    Friend WithEvents TableLayoutPanel1 As TableLayoutPanel
+    Friend WithEvents uxpnlResumen As Panel
+    Friend WithEvents uxPbDevice As ProgressBar
+    Friend WithEvents uxlblDevice2 As Label
+    Friend WithEvents uxlblDevice1 As Label
+    Friend WithEvents uxlblDevice3 As Label
 End Class
