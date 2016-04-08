@@ -33,6 +33,7 @@ Public Class BaseDatos
         Catch ex As Exception
             Errores("BaseDatos:New:" & ex.Message)
             If (myConection.State <> ConnectionState.Closed) Then myConection.Close()
+            My.MySettings.Default.Server = String.Empty
             Application.Exit()
         End Try
     End Sub
