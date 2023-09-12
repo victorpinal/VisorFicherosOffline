@@ -69,8 +69,9 @@ Partial Class Principal
         'uxtxtSearch
         '
         Me.uxtxtSearch.Location = New System.Drawing.Point(0, 0)
+        Me.uxtxtSearch.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxtxtSearch.Name = "uxtxtSearch"
-        Me.uxtxtSearch.Size = New System.Drawing.Size(185, 20)
+        Me.uxtxtSearch.Size = New System.Drawing.Size(245, 22)
         Me.uxtxtSearch.TabIndex = 2
         '
         'uxTreeFolder
@@ -81,11 +82,12 @@ Partial Class Principal
         Me.uxTreeFolder.HotTracking = True
         Me.uxTreeFolder.ImageIndex = 0
         Me.uxTreeFolder.ImageList = Me.uxImageList
-        Me.uxTreeFolder.Location = New System.Drawing.Point(3, 34)
+        Me.uxTreeFolder.Location = New System.Drawing.Point(4, 43)
+        Me.uxTreeFolder.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxTreeFolder.Name = "uxTreeFolder"
         Me.uxTreeFolder.SelectedImageIndex = 0
         Me.uxTreeFolder.ShowNodeToolTips = True
-        Me.uxTreeFolder.Size = New System.Drawing.Size(251, 567)
+        Me.uxTreeFolder.Size = New System.Drawing.Size(334, 701)
         Me.uxTreeFolder.TabIndex = 0
         '
         'uxImageList
@@ -100,14 +102,16 @@ Partial Class Principal
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.uxcmbDeviceNames.FormattingEnabled = True
         Me.uxcmbDeviceNames.Location = New System.Drawing.Point(0, 0)
+        Me.uxcmbDeviceNames.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxcmbDeviceNames.Name = "uxcmbDeviceNames"
-        Me.uxcmbDeviceNames.Size = New System.Drawing.Size(224, 21)
+        Me.uxcmbDeviceNames.Size = New System.Drawing.Size(296, 24)
         Me.uxcmbDeviceNames.TabIndex = 0
         '
         'uxSplitExplorer
         '
         Me.uxSplitExplorer.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.uxSplitExplorer.Location = New System.Drawing.Point(5, 32)
+        Me.uxSplitExplorer.Location = New System.Drawing.Point(7, 39)
+        Me.uxSplitExplorer.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxSplitExplorer.Name = "uxSplitExplorer"
         '
         'uxSplitExplorer.Panel1
@@ -117,8 +121,9 @@ Partial Class Principal
         'uxSplitExplorer.Panel2
         '
         Me.uxSplitExplorer.Panel2.Controls.Add(Me.uxlstFiles)
-        Me.uxSplitExplorer.Size = New System.Drawing.Size(998, 670)
-        Me.uxSplitExplorer.SplitterDistance = 257
+        Me.uxSplitExplorer.Size = New System.Drawing.Size(1330, 830)
+        Me.uxSplitExplorer.SplitterDistance = 342
+        Me.uxSplitExplorer.SplitterWidth = 5
         Me.uxSplitExplorer.TabIndex = 4
         '
         'TableLayoutPanel1
@@ -130,12 +135,13 @@ Partial Class Principal
         Me.TableLayoutPanel1.Controls.Add(Me.uxpnlResumen, 0, 2)
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
+        Me.TableLayoutPanel1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
         Me.TableLayoutPanel1.RowCount = 3
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle())
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle())
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(257, 670)
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(342, 830)
         Me.TableLayoutPanel1.TabIndex = 6
         '
         'uxpnlDevices
@@ -143,9 +149,10 @@ Partial Class Principal
         Me.uxpnlDevices.Controls.Add(Me.uxcmbDeviceNames)
         Me.uxpnlDevices.Controls.Add(Me.uxbtnLoadFolder)
         Me.uxpnlDevices.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.uxpnlDevices.Location = New System.Drawing.Point(3, 3)
+        Me.uxpnlDevices.Location = New System.Drawing.Point(4, 4)
+        Me.uxpnlDevices.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxpnlDevices.Name = "uxpnlDevices"
-        Me.uxpnlDevices.Size = New System.Drawing.Size(251, 25)
+        Me.uxpnlDevices.Size = New System.Drawing.Size(334, 31)
         Me.uxpnlDevices.TabIndex = 5
         '
         'uxbtnLoadFolder
@@ -153,9 +160,10 @@ Partial Class Principal
         Me.uxbtnLoadFolder.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.uxbtnLoadFolder.AutoSize = True
         Me.uxbtnLoadFolder.Image = Global.VisorFicherosOffline.My.Resources.Resources.folder
-        Me.uxbtnLoadFolder.Location = New System.Drawing.Point(227, -1)
+        Me.uxbtnLoadFolder.Location = New System.Drawing.Point(302, -1)
+        Me.uxbtnLoadFolder.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxbtnLoadFolder.Name = "uxbtnLoadFolder"
-        Me.uxbtnLoadFolder.Size = New System.Drawing.Size(24, 23)
+        Me.uxbtnLoadFolder.Size = New System.Drawing.Size(32, 28)
         Me.uxbtnLoadFolder.TabIndex = 1
         Me.uxbtnLoadFolder.UseVisualStyleBackColor = True
         '
@@ -166,28 +174,31 @@ Partial Class Principal
         Me.uxpnlResumen.Controls.Add(Me.uxlblDevice2)
         Me.uxpnlResumen.Controls.Add(Me.uxlblDevice3)
         Me.uxpnlResumen.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.uxpnlResumen.Location = New System.Drawing.Point(3, 607)
+        Me.uxpnlResumen.Location = New System.Drawing.Point(4, 752)
+        Me.uxpnlResumen.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxpnlResumen.Name = "uxpnlResumen"
-        Me.uxpnlResumen.Size = New System.Drawing.Size(251, 60)
+        Me.uxpnlResumen.Size = New System.Drawing.Size(334, 74)
         Me.uxpnlResumen.TabIndex = 6
         '
         'uxPbDevice
         '
         Me.uxPbDevice.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.uxPbDevice.Location = New System.Drawing.Point(3, 3)
+        Me.uxPbDevice.Location = New System.Drawing.Point(4, 4)
+        Me.uxPbDevice.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxPbDevice.MarqueeAnimationSpeed = 0
         Me.uxPbDevice.Name = "uxPbDevice"
-        Me.uxPbDevice.Size = New System.Drawing.Size(186, 13)
+        Me.uxPbDevice.Size = New System.Drawing.Size(247, 16)
         Me.uxPbDevice.Step = 1
         Me.uxPbDevice.TabIndex = 0
         '
         'uxlblDevice1
         '
         Me.uxlblDevice1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.uxlblDevice1.Location = New System.Drawing.Point(188, 3)
+        Me.uxlblDevice1.Location = New System.Drawing.Point(250, 4)
+        Me.uxlblDevice1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.uxlblDevice1.Name = "uxlblDevice1"
-        Me.uxlblDevice1.Size = New System.Drawing.Size(60, 13)
+        Me.uxlblDevice1.Size = New System.Drawing.Size(80, 16)
         Me.uxlblDevice1.TabIndex = 2
         Me.uxlblDevice1.Text = "Label1"
         Me.uxlblDevice1.TextAlign = System.Drawing.ContentAlignment.TopRight
@@ -195,18 +206,20 @@ Partial Class Principal
         'uxlblDevice2
         '
         Me.uxlblDevice2.AutoSize = True
-        Me.uxlblDevice2.Location = New System.Drawing.Point(3, 19)
+        Me.uxlblDevice2.Location = New System.Drawing.Point(4, 23)
+        Me.uxlblDevice2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.uxlblDevice2.Name = "uxlblDevice2"
-        Me.uxlblDevice2.Size = New System.Drawing.Size(39, 13)
+        Me.uxlblDevice2.Size = New System.Drawing.Size(51, 17)
         Me.uxlblDevice2.TabIndex = 1
         Me.uxlblDevice2.Text = "Label1"
         '
         'uxlblDevice3
         '
         Me.uxlblDevice3.AutoSize = True
-        Me.uxlblDevice3.Location = New System.Drawing.Point(3, 34)
+        Me.uxlblDevice3.Location = New System.Drawing.Point(4, 42)
+        Me.uxlblDevice3.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.uxlblDevice3.Name = "uxlblDevice3"
-        Me.uxlblDevice3.Size = New System.Drawing.Size(39, 13)
+        Me.uxlblDevice3.Size = New System.Drawing.Size(51, 17)
         Me.uxlblDevice3.TabIndex = 3
         Me.uxlblDevice3.Text = "Label1"
         '
@@ -217,10 +230,11 @@ Partial Class Principal
         Me.uxlstFiles.Dock = System.Windows.Forms.DockStyle.Fill
         Me.uxlstFiles.HideSelection = False
         Me.uxlstFiles.Location = New System.Drawing.Point(0, 0)
+        Me.uxlstFiles.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxlstFiles.MultiSelect = False
         Me.uxlstFiles.Name = "uxlstFiles"
         Me.uxlstFiles.ShowItemToolTips = True
-        Me.uxlstFiles.Size = New System.Drawing.Size(737, 670)
+        Me.uxlstFiles.Size = New System.Drawing.Size(983, 830)
         Me.uxlstFiles.SmallImageList = Me.uxImageList
         Me.uxlstFiles.TabIndex = 0
         Me.uxlstFiles.UseCompatibleStateImageBehavior = False
@@ -262,17 +276,19 @@ Partial Class Principal
         '
         'uxStatusBar
         '
+        Me.uxStatusBar.ImageScalingSize = New System.Drawing.Size(20, 20)
         Me.uxStatusBar.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.uxProgressBar, Me.uxStatusLabel, Me.uxStatusFiles})
-        Me.uxStatusBar.Location = New System.Drawing.Point(5, 702)
+        Me.uxStatusBar.Location = New System.Drawing.Point(7, 869)
         Me.uxStatusBar.Name = "uxStatusBar"
-        Me.uxStatusBar.Size = New System.Drawing.Size(998, 22)
+        Me.uxStatusBar.Padding = New System.Windows.Forms.Padding(1, 0, 19, 0)
+        Me.uxStatusBar.Size = New System.Drawing.Size(1330, 22)
         Me.uxStatusBar.TabIndex = 3
         Me.uxStatusBar.Text = "StatusStrip1"
         '
         'uxProgressBar
         '
         Me.uxProgressBar.Name = "uxProgressBar"
-        Me.uxProgressBar.Size = New System.Drawing.Size(120, 16)
+        Me.uxProgressBar.Size = New System.Drawing.Size(160, 17)
         Me.uxProgressBar.Step = 1
         Me.uxProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
         Me.uxProgressBar.Visible = False
@@ -280,14 +296,14 @@ Partial Class Principal
         'uxStatusLabel
         '
         Me.uxStatusLabel.Name = "uxStatusLabel"
-        Me.uxStatusLabel.Size = New System.Drawing.Size(983, 17)
+        Me.uxStatusLabel.Size = New System.Drawing.Size(1310, 16)
         Me.uxStatusLabel.Spring = True
         Me.uxStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'uxStatusFiles
         '
         Me.uxStatusFiles.Name = "uxStatusFiles"
-        Me.uxStatusFiles.Size = New System.Drawing.Size(0, 17)
+        Me.uxStatusFiles.Size = New System.Drawing.Size(0, 16)
         '
         'uxBackground
         '
@@ -303,18 +319,20 @@ Partial Class Principal
         Me.uxPanelFiltros.Controls.Add(Me.uxchkVideo)
         Me.uxPanelFiltros.Controls.Add(Me.uxchkFilesOnly)
         Me.uxPanelFiltros.Dock = System.Windows.Forms.DockStyle.Top
-        Me.uxPanelFiltros.Location = New System.Drawing.Point(5, 5)
+        Me.uxPanelFiltros.Location = New System.Drawing.Point(7, 6)
+        Me.uxPanelFiltros.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxPanelFiltros.Name = "uxPanelFiltros"
-        Me.uxPanelFiltros.Size = New System.Drawing.Size(998, 27)
+        Me.uxPanelFiltros.Size = New System.Drawing.Size(1330, 33)
         Me.uxPanelFiltros.TabIndex = 6
         '
         'uxbntSearch
         '
         Me.uxbntSearch.AutoSize = True
         Me.uxbntSearch.Image = Global.VisorFicherosOffline.My.Resources.Resources.search
-        Me.uxbntSearch.Location = New System.Drawing.Point(191, 0)
+        Me.uxbntSearch.Location = New System.Drawing.Point(255, 0)
+        Me.uxbntSearch.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxbntSearch.Name = "uxbntSearch"
-        Me.uxbntSearch.Size = New System.Drawing.Size(67, 23)
+        Me.uxbntSearch.Size = New System.Drawing.Size(105, 33)
         Me.uxbntSearch.TabIndex = 3
         Me.uxbntSearch.Text = "Search"
         Me.uxbntSearch.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
@@ -323,26 +341,29 @@ Partial Class Principal
         'uxlblFilterbyExtension
         '
         Me.uxlblFilterbyExtension.AutoSize = True
-        Me.uxlblFilterbyExtension.Location = New System.Drawing.Point(264, 6)
+        Me.uxlblFilterbyExtension.Location = New System.Drawing.Point(352, 7)
+        Me.uxlblFilterbyExtension.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.uxlblFilterbyExtension.Name = "uxlblFilterbyExtension"
-        Me.uxlblFilterbyExtension.Size = New System.Drawing.Size(61, 13)
+        Me.uxlblFilterbyExtension.Size = New System.Drawing.Size(81, 17)
         Me.uxlblFilterbyExtension.TabIndex = 5
         Me.uxlblFilterbyExtension.Text = "Filter by Ext"
         '
         'uxcmbExtensions
         '
         Me.uxcmbExtensions.FormattingEnabled = True
-        Me.uxcmbExtensions.Location = New System.Drawing.Point(327, 2)
+        Me.uxcmbExtensions.Location = New System.Drawing.Point(436, 2)
+        Me.uxcmbExtensions.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxcmbExtensions.Name = "uxcmbExtensions"
-        Me.uxcmbExtensions.Size = New System.Drawing.Size(63, 21)
+        Me.uxcmbExtensions.Size = New System.Drawing.Size(83, 24)
         Me.uxcmbExtensions.TabIndex = 4
         '
         'uxchkVideo
         '
         Me.uxchkVideo.AutoSize = True
-        Me.uxchkVideo.Location = New System.Drawing.Point(401, 5)
+        Me.uxchkVideo.Location = New System.Drawing.Point(535, 6)
+        Me.uxchkVideo.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxchkVideo.Name = "uxchkVideo"
-        Me.uxchkVideo.Size = New System.Drawing.Size(53, 17)
+        Me.uxchkVideo.Size = New System.Drawing.Size(66, 21)
         Me.uxchkVideo.TabIndex = 6
         Me.uxchkVideo.Text = "Video"
         Me.uxchkVideo.UseVisualStyleBackColor = True
@@ -350,23 +371,25 @@ Partial Class Principal
         'uxchkFilesOnly
         '
         Me.uxchkFilesOnly.AutoSize = True
-        Me.uxchkFilesOnly.Location = New System.Drawing.Point(455, 5)
+        Me.uxchkFilesOnly.Location = New System.Drawing.Point(607, 6)
+        Me.uxchkFilesOnly.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxchkFilesOnly.Name = "uxchkFilesOnly"
-        Me.uxchkFilesOnly.Size = New System.Drawing.Size(69, 17)
+        Me.uxchkFilesOnly.Size = New System.Drawing.Size(89, 21)
         Me.uxchkFilesOnly.TabIndex = 7
         Me.uxchkFilesOnly.Text = "Files only"
         Me.uxchkFilesOnly.UseVisualStyleBackColor = True
         '
         'Principal
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1008, 729)
+        Me.ClientSize = New System.Drawing.Size(1344, 897)
         Me.Controls.Add(Me.uxSplitExplorer)
         Me.Controls.Add(Me.uxPanelFiltros)
         Me.Controls.Add(Me.uxStatusBar)
+        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.Name = "Principal"
-        Me.Padding = New System.Windows.Forms.Padding(5)
+        Me.Padding = New System.Windows.Forms.Padding(7, 6, 7, 6)
         Me.Text = "Visor de ficheros offline"
         Me.uxSplitExplorer.Panel1.ResumeLayout(False)
         Me.uxSplitExplorer.Panel2.ResumeLayout(False)
